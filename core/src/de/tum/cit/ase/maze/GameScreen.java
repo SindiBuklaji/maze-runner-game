@@ -1,5 +1,6 @@
 package de.tum.cit.ase.maze;
 
+import Entity.Player;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
@@ -24,6 +25,10 @@ public class GameScreen implements Screen {
      *
      * @param game The main game class, used to access global resources and methods.
      */
+
+    //Player initialization
+   // Player player = new Player(this, mazeRunnerGame);
+
     public GameScreen(MazeRunnerGame game) {
         this.game = game;
 
