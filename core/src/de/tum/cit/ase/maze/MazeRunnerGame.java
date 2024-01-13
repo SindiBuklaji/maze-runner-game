@@ -34,6 +34,8 @@ public class MazeRunnerGame extends Game {
      *
      * @param fileChooser The file chooser for the game, typically used in desktop environment.
      */
+    //for movement
+    public boolean upPressed, downPressed, leftPressed,rightPressed,enterPressed,shotKeyPressed, spacePressed;
     public MazeRunnerGame(NativeFileChooser fileChooser) {
         super();
     }

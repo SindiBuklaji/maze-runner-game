@@ -1,6 +1,5 @@
 package de.tum.cit.ase.maze;
 
-import Entity.Player;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
