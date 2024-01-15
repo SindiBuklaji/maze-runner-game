@@ -3,7 +3,7 @@ package data;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-    public class DataStorage implements Serializable {
+    /*public class DataStorage implements Serializable {
 
         //PLAYER STATS
         int level;
@@ -31,3 +31,4 @@ import java.util.ArrayList;
         boolean mapObjectOpened[][];
 
     }
+     */

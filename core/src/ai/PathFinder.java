@@ -4,7 +4,7 @@ import de.tum.cit.ase.maze.GameScreen;
 
 import java.util.ArrayList;
 
-public class PathFinder {
+//public class PathFinder {
   /*  GameScreen gameScreen;
     Node[][] node;
     ArrayList<Node> openList = new ArrayList<>();
@@ -214,4 +214,4 @@ public class PathFinder {
             current = current.parent;
         }
     } */
-}
+//}

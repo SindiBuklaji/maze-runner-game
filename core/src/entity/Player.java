@@ -1,83 +1,70 @@
 package entity;
 
 import com.badlogic.gdx.ApplicationListener;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import de.tum.cit.ase.maze.GameScreen;
 import de.tum.cit.ase.maze.MazeRunnerGame;
+import org.w3c.dom.Text;
 
 import javax.imageio.ImageIO;
 import java.io.IOException;
 
-public class Player extends Entity {
+public class Player {
 
-    GameScreen gameScreen;
-    MazeRunnerGame mazeRunnerGame;
+  //  GameScreen gameScreen;
+    //MazeRunnerGame mazeRunnerGame;
+    private float x;
+    private float y;
+    private TextureRegion currentFrame;
+    private Animation<TextureRegion> upAnimation;
+    private Animation<TextureRegion> downAnimation;
+    private Animation<TextureRegion> leftAnimation;
+    private Animation<TextureRegion> rightAnimation;
 
-    public Player(GameScreen gameScreen, MazeRunnerGame mazeRunnerGame) {
-        this.gameScreen = gameScreen;
-        this.mazeRunnerGame = mazeRunnerGame;
+    private float stateTime;
 
-        setDefaultValues();
-        getPlayerImage();
-    }
-
-    public void setDefaultValues(){
-        x = 100;
-        y = 100;
-        speed = 4;
-        direction = "down";
-    }
-
-    // we will implement images with package
-   public void getPlayerImage() {
-        try {
-            up1 = (ApplicationListener) ImageIO.read(getClass().getResourceAsStream("/player/up1.png"));
-            up2 = (ApplicationListener) ImageIO.read(getClass().getResourceAsStream("/player/up2.png"));
-            up3 = (ApplicationListener) ImageIO.read(getClass().getResourceAsStream("/player/up3.png"));
-            up4 = (ApplicationListener) ImageIO.read(getClass().getResourceAsStream("/player/up4.png"));
-            down1 = (ApplicationListener) ImageIO.read(getClass().getResourceAsStream("/player/down1.png"));
-            down2 = (ApplicationListener) ImageIO.read(getClass().getResourceAsStream("/player/down2.png"));
-            down3 = (ApplicationListener) ImageIO.read(getClass().getResourceAsStream("/player/down3.png"));
-            down4 = (ApplicationListener) ImageIO.read(getClass().getResourceAsStream("/player/down4.png"));
-            left1 = (ApplicationListener) ImageIO.read(getClass().getResourceAsStream("/player/left1.png"));
-            left2 = (ApplicationListener) ImageIO.read(getClass().getResourceAsStream("/player/left2.png"));
-            left3 = (ApplicationListener) ImageIO.read(getClass().getResourceAsStream("/player/left3.png"));
-            left4 = (ApplicationListener) ImageIO.read(getClass().getResourceAsStream("/player/left4.png"));
-            right1 = (ApplicationListener) ImageIO.read(getClass().getResourceAsStream("/player/right1.png"));
-            right2 = (ApplicationListener) ImageIO.read(getClass().getResourceAsStream("/player/right2.png"));
-            right3 = (ApplicationListener) ImageIO.read(getClass().getResourceAsStream("/player/right3.png"));
-            right4 = (ApplicationListener) ImageIO.read(getClass().getResourceAsStream("/player/right4.png"));
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-
+    public Player(float x, float y, Animation<TextureRegion> upAnimation, Animation<TextureRegion> downAnimation, Animation<TextureRegion> leftAnimation,
+                  Animation<TextureRegion> rightAnimation) {
+        this.x = x;
+        this.y = y;
+        this.upAnimation = upAnimation;
+        this.downAnimation = downAnimation;
+        this.leftAnimation = leftAnimation;
+        this.rightAnimation = rightAnimation;
+        this.stateTime = 0f;
 
     }
 
-    public void update() {
-        if (mazeRunnerGame.upPressed == true) {
-            direction = "up";
-            y -= speed;
+    public void update(float delta) {
+        stateTime += delta; // Update the animation state time
+
+        // Update player's position based on input or game logic
+        // For simplicity, let's assume the player moves based on arrow keys.
+
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            y += 100 * delta; // Adjust the speed as needed
+            currentFrame = upAnimation.getKeyFrame(stateTime, true);
+        } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            y -= 100 * delta; // Adjust the speed as needed
+            currentFrame = downAnimation.getKeyFrame(stateTime, true);
+        } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            x -= 100 * delta; // Adjust the speed as needed
+            currentFrame = leftAnimation.getKeyFrame(stateTime, true);
+        } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            x += 100 * delta; // Adjust the speed as needed
+            currentFrame = rightAnimation.getKeyFrame(stateTime, true);
         }
-        else if (mazeRunnerGame.downPressed == true) {
-            direction = "down";
-            y += speed;
-        }
-        else if (mazeRunnerGame.leftPressed == true) {
-            direction = "left";
-            x -= speed;
-        }
-        else if (mazeRunnerGame.rightPressed == true) {
-            direction = "right";
-            x += speed;
-        }
+
+        // Add additional logic as needed for different movements or conditions.
     }
-     public void draw(SpriteBatch g2) {
 
-
-     }
-
-
+    // Render method to draw the player
+    public void render(SpriteBatch batch) {
+        batch.draw(currentFrame, x, y, 64, 64); // Adjust the size as needed
+    }
 }
 

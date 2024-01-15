@@ -3,6 +3,8 @@ package de.tum.cit.ase.maze;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -10,6 +12,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
 import games.spooky.gdx.nativefilechooser.NativeFileChooser;
+
+import java.nio.ByteBuffer;
 
 /**
  * The MazeRunnerGame class represents the core of the Maze Runner game.
@@ -29,13 +33,21 @@ public class MazeRunnerGame extends Game {
     // Character animation downwards
     private Animation<TextureRegion> characterDownAnimation;
 
+    // Texture for the player in different positions
+
+
+    // Maze array
+    int[][] maze;
+
+
     /**
      * Constructor for MazeRunnerGame.
      *
      * @param fileChooser The file chooser for the game, typically used in desktop environment.
      */
     //for movement
-    public boolean upPressed, downPressed, leftPressed,rightPressed,enterPressed,shotKeyPressed, spacePressed;
+    public boolean upPressed, downPressed, leftPressed, rightPressed, enterPressed, shotKeyPressed, spacePressed;
+
     public MazeRunnerGame(NativeFileChooser fileChooser) {
         super();
     }
@@ -49,11 +61,20 @@ public class MazeRunnerGame extends Game {
         skin = new Skin(Gdx.files.internal("craft/craftacular-ui.json")); // Load UI skin
         this.loadCharacterAnimation(); // Load character animation
 
+        maze = new int[][]{
+                {-1, -1, -1, -1, -1},
+                {0, -1, -1, -1, 0},
+                {0, 0, -1, -1, 0},
+                {-1, -1, 0, -1, 0},
+                {0, 0, 0, 0, 0}
+        };
+
         // Play some background music
         // Background sound
         Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("background.mp3"));
         backgroundMusic.setLooping(true);
         backgroundMusic.play();
+
 
         goToMenu(); // Navigate to the menu screen
     }
