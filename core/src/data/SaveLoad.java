@@ -1,11 +1,6 @@
 package data;
 
 import de.tum.cit.ase.maze.GameScreen;
-import entity.Entity;
-
-import java.io.*;
-
-import static com.badlogic.gdx.utils.JsonValue.ValueType.object;
 
 public class SaveLoad {
 

@@ -1,5 +1,6 @@
 package de.tum.cit.ase.maze;
 
+import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
@@ -13,13 +14,14 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
 import games.spooky.gdx.nativefilechooser.NativeFileChooser;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /**
  * The MazeRunnerGame class represents the core of the Maze Runner game.
  * It manages the screens and global resources like SpriteBatch and Skin.
  */
-public class MazeRunnerGame extends Game {
+public class MazeRunnerGame extends Game implements ApplicationListener {
     // Screens
     private MenuScreen menuScreen;
     private GameScreen gameScreen;
@@ -39,6 +41,8 @@ public class MazeRunnerGame extends Game {
     // Maze array
     int[][] maze;
 
+    NativeFileChooser nativeFileChooser;
+
 
     /**
      * Constructor for MazeRunnerGame.
@@ -50,6 +54,7 @@ public class MazeRunnerGame extends Game {
 
     public MazeRunnerGame(NativeFileChooser fileChooser) {
         super();
+        this.nativeFileChooser = fileChooser;
     }
 
     /**
@@ -60,14 +65,6 @@ public class MazeRunnerGame extends Game {
         spriteBatch = new SpriteBatch(); // Create SpriteBatch
         skin = new Skin(Gdx.files.internal("craft/craftacular-ui.json")); // Load UI skin
         this.loadCharacterAnimation(); // Load character animation
-
-        maze = new int[][]{
-                {-1, -1, -1, -1, -1},
-                {0, -1, -1, -1, 0},
-                {0, 0, -1, -1, 0},
-                {-1, -1, 0, -1, 0},
-                {0, 0, 0, 0, 0}
-        };
 
         // Play some background music
         // Background sound
@@ -93,7 +90,7 @@ public class MazeRunnerGame extends Game {
     /**
      * Switches to the game screen.
      */
-    public void goToGame() {
+    public void goToGame() throws IOException {
         this.setScreen(new GameScreen(this)); // Set the current screen to GameScreen
         if (menuScreen != null) {
             menuScreen.dispose(); // Dispose the menu screen if it exists
@@ -145,4 +142,6 @@ public class MazeRunnerGame extends Game {
     public SpriteBatch getSpriteBatch() {
         return spriteBatch;
     }
+
+
 }

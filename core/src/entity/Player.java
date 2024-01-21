@@ -66,5 +66,8 @@ public class Player {
     public void render(SpriteBatch batch) {
         batch.draw(currentFrame, x, y, 64, 64); // Adjust the size as needed
     }
+
+
+
 }
 

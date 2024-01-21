@@ -3,16 +3,26 @@ package de.tum.cit.ase.maze;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g3d.model.Animation;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
+import com.badlogic.gdx.utils.viewport.ExtendViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
+import entity.MazeLoader;
 import entity.Player;
 import entity.Wall;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
 
 /**
  * The GameScreen class is responsible for rendering the gameplay screen.
@@ -21,10 +31,12 @@ import java.util.List;
 public class GameScreen implements Screen {
 
     private final MazeRunnerGame game;
+    //bane final po nuk bani
     private final OrthographicCamera camera;
     private final BitmapFont font;
 
     private float sinusInput = 0f;
+     /*
 
     private Texture playerUp1;
     private Texture playerUp2;
@@ -57,68 +69,95 @@ public class GameScreen implements Screen {
 
     private Player player;
 
+    private int[][] maze;
+     */
+
+    private Map<String, Integer> mazeMap;
+    private int tileSize = 64;
+
+    private TextureRegion wallRegion;
+    private TextureRegion entryRegion;
+    private TextureRegion exitRegion;
+    private TextureRegion fireRegion;
+    private TextureRegion ghostRegion;
+
+    int mazeWidth;
+    int mazeHeight;
+
+    //private Viewport viewport;
+
+
     /**
      * Constructor for GameScreen. Sets up the camera and font.
      *
      * @param game The main game class, used to access global resources and methods.
      */
 
-    public GameScreen(MazeRunnerGame game) {
+    public GameScreen(MazeRunnerGame game) throws IOException {
         this.game = game;
 
-        playerUp1 = new Texture(Gdx.files.internal("up1.png"));
-        playerUp2 = new Texture(Gdx.files.internal("up2.png"));
-        playerUp3 = new Texture(Gdx.files.internal("up3.png"));
-        playerUp4 = new Texture(Gdx.files.internal("up4.png"));
+        // Calculate maze dimensions based on window size
+        mazeWidth = Gdx.graphics.getWidth();
+        mazeHeight = Gdx.graphics.getHeight();
 
-        playerDown1 = new Texture(Gdx.files.internal("down1.png"));
-        playerDown2 = new Texture(Gdx.files.internal("down2.png"));
-        playerDown3 = new Texture(Gdx.files.internal("down3.png"));
-        playerDown4 = new Texture(Gdx.files.internal("down4.png"));
+        FileHandle fileHandle = Gdx.files.internal("maps/level-1.properties");
+        InputStream inputStream = fileHandle.read();
+        Properties properties = new Properties();
 
-        playerLeft1 = new Texture(Gdx.files.internal("left1.png"));
-        playerLeft2 = new Texture(Gdx.files.internal("left2.png"));
-        playerLeft3 = new Texture(Gdx.files.internal("left3.png"));
-        playerLeft4 = new Texture(Gdx.files.internal("left4.png"));
+        Texture wallTexture = new Texture(Gdx.files.internal("basictiles.png"));
+        Texture entryTexture = new Texture(Gdx.files.internal("basictiles.png"));
+        Texture exitTexture = new Texture(Gdx.files.internal("things.png"));
+        Texture fireTexture = new Texture(Gdx.files.internal("things.png"));
+        Texture ghostTexture = new Texture(Gdx.files.internal("mobs.png"));
 
-        playerRight1 = new Texture(Gdx.files.internal("right1.png"));
-        playerRight2 = new Texture(Gdx.files.internal("right2.png"));
-        playerRight3 = new Texture(Gdx.files.internal("right3.png"));
-        playerRight4 = new Texture(Gdx.files.internal("right4.png"));
+        // Load your textures
+        wallRegion = new TextureRegion(wallTexture, 0, 0, 16, 16);
+        entryRegion = new TextureRegion(entryTexture, 6, 6, 16, 16);
+        exitRegion = new TextureRegion(exitTexture, 0, 0, 16, 16);
+        fireRegion = new TextureRegion(fireTexture, 7, 7, 16, 16);
+        ghostRegion = new TextureRegion(ghostTexture, 12, 12, 16, 16);
 
-        // Load wall textures
-        wallmiddle1 = new Texture(Gdx.files.internal("wallmiddle1.png"));
-        wallmiddle2 = new Texture(Gdx.files.internal("wallmiddle2.png"));
-        wallUp1 = new Texture(Gdx.files.internal("wallup1.png"));
-        wallUp2 = new Texture(Gdx.files.internal("wallup2.png"));
+        properties.load(inputStream);
 
-        walls = new ArrayList<>();
-        createWalls();
+        mazeMap = new HashMap<>();
+        for (String key : properties.stringPropertyNames()) {
+            String[] coordinates = key.split(",");
+            int x = Integer.parseInt(coordinates[0]);
+            int y = Integer.parseInt(coordinates[1]);
+            int value = Integer.parseInt(properties.getProperty(key));
+            mazeMap.put(x + "," + y, value);
+        }
 
-        //player = new Player(
-          //      game.maze[0].length * 0.5f * tileSize,
-            //    game.maze.length * 0.5f * tileSize,
-              //  new Animation<>(0.2f, playerUp1, playerUp2, playerUp3, playerUp4),
-                //new Animation<>(0.2f, playerDown1, playerDown2, playerDown3, playerDown4),
-                //new Animation<>(0.2f, playerLeft1, playerLeft2, playerLeft3, playerLeft4),
-                //new Animation<>(0.2f, playerRight1, playerRight2, playerRight3, playerRight4)
-       // );
+       /* MazeLoader mazeLoader = new MazeLoader();
+        mazeLoader.loadMaze("maps/level-1.properties");
+        maze = mazeLoader.getMaze();
+
+        player = new Player(
+                game.maze[0].length * 0.5f * tileSize,
+                game.maze.length * 0.5f * tileSize,
+                new Animation<>(0.2f, playerUp1, playerUp2, playerUp3, playerUp4),
+                new Animation<>(0.2f, playerDown1, playerDown2, playerDown3, playerDown4),
+                new Animation<>(0.2f, playerLeft1, playerLeft2, playerLeft3, playerLeft4),
+                new Animation<>(0.2f, playerRight1, playerRight2, playerRight3, playerRight4)
+        );
+
+        */
 
 
         // Create and configure the camera for the game view
-        camera = new OrthographicCamera();
+        this.camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-        camera.zoom = 0.7f;
+        camera.zoom = 1.0f;
+        //this.viewport = new ScreenViewport(camera);
 
         //Set the initial position of the camera to the center of the maze
-        camera.position.set(game.maze[0].length * 0.5f * tileSize, game.maze.length * 0.5f * tileSize, 0);
+        camera.position.set(mazeWidth * 0.5f, mazeHeight * 0.5f, 0);
 
         //Update the camera projection
         camera.update();
 
         // Get the font from the game's skin
         font = game.getSkin().getFont("font");
-
 
     }
 
@@ -134,22 +173,26 @@ public class GameScreen implements Screen {
         ScreenUtils.clear(0, 0, 0, 1); // Clear the screen
 
         camera.update(); // Update the camera
-
+/*
         // Move text in a circular path to have an example of a moving object
         sinusInput += delta;
         float textX = (float) (camera.position.x + Math.sin(sinusInput) * 100);
         float textY = (float) (camera.position.y + Math.cos(sinusInput) * 100);
 
+ */
+
+
         // Set up and begin drawing with the sprite batch
+        //SpriteBatch batch = new SpriteBatch();
         game.getSpriteBatch().setProjectionMatrix(camera.combined);
 
         game.getSpriteBatch().begin(); // Important to call this before drawing anything
 
         // Render the text
-        font.draw(game.getSpriteBatch(), "Press ESC to go to menu", textX, textY);
+        //   font.draw(game.getSpriteBatch(), "Press ESC to go to menu", textX, textY);
 
         // Draw the character next to the text :) / We can reuse sinusInput here
-        game.getSpriteBatch().draw(
+       /* game.getSpriteBatch().draw(
                 game.getCharacterDownAnimation().getKeyFrame(sinusInput, true),
                 textX - 96,
                 textY - 64,
@@ -157,44 +200,98 @@ public class GameScreen implements Screen {
                 128
         );
 
-      //  game.getSpriteBatch().draw(
-        //        player.getCurrentFrame(),
-          //      player.getX() - 96,
-            //    player.getY() - 64,
-              //  64,
-                //128
-        //);
+        game.getSpriteBatch().draw(
+                player.getCurrentFrame(),
+                player.getX() - 96,
+                player.getY() - 64,
+                64,
+                128
+        );
+
+        */
+
+        // ShapeRenderer shapeRenderer = new ShapeRenderer();
+        //shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        //batch.begin();
+
+        for (Map.Entry<String, Integer> entry : mazeMap.entrySet()) {
+            String[] coordinates = entry.getKey().split(",");
+            int x = Integer.parseInt(coordinates[0]);
+            int y = Integer.parseInt(coordinates[1]);
+            int value = entry.getValue();
+
+            // 0 == walls
+            if (value == 0) {
+                game.getSpriteBatch().draw(wallRegion, x * tileSize, y * tileSize, tileSize, tileSize);
+                // 1 == open paths
+            } else if (value == 1) {
+                game.getSpriteBatch().draw(entryRegion, x * tileSize, y * tileSize, tileSize, tileSize);
+                // 2 == exits (door)
+            } else if (value == 2) {
+                game.getSpriteBatch().draw(exitRegion, x * tileSize, y * tileSize, tileSize, tileSize);
+                // 3 == fire
+            } else if (value == 3) {
+                game.getSpriteBatch().draw(fireRegion, x * tileSize, y * tileSize, tileSize, tileSize);
+                // 4 == ghosts
+            } else if (value == 4) {
+                game.getSpriteBatch().draw(ghostRegion, x * tileSize, y * tileSize, tileSize, tileSize);
+            }
+
+            // shapeRenderer.rect(x * tileSize, y * tileSize, tileSize, tileSize);
+        }
+
+        //  shapeRenderer.end();
         // render the maze
-        renderMaze();
+        //   renderMaze();
+        // batch.end();
+
 
         game.getSpriteBatch().end(); // Important to call this after drawing everything
+        camera.update();
+
     }
 
     public void renderMaze() {
-        int[][] mazeArray = game.maze; // Replace this with your actual maze array reference
+        // int[][] mazeArray = maze; // Replace this with your actual maze array reference
 
-        // float tileSize = 200;
+        /* float tileSize = 100;
         // Adjust this based on the size of your maze tiles
+        for (int row = 0; row < maze.length; row++) {
+            for (int col = 0; col < maze[row].length; col++) {
+                float x = col * tileSize;
+                float y = row * tileSize;
+
+                // Adjust these conditions based on your maze elements
+                switch (maze[row][col]) {
+                    case 0:
+                        // Empty path, you can leave it blank or draw a floor texture
+                        break;
+                    case 1:
+                        // Wall, draw the appropriate wall texture based on position
+                        drawWallTexture(col, row);
+                        break;
+                    // Add more cases for other maze elements if needed
+                }
+            }
+        }
 
         //render the walls
         for (Wall wall : walls) {
             wall.draw(game.getSpriteBatch());
         }
 
-        //for (int row = 0; row < mazeArray.length; row++) {
-        //  for (int col = 0; col < mazeArray[row].length; col++) {
-        //    float x = col * tileSize;
-        //  float y = row * tileSize;
-
-        //switch (mazeArray[row][col]) {
-        //  case 0:
-        // Empty path, you can leave it blank or draw a floor texture
-        //    break;
-        //case -1:
-        // Wall, draw the appropriate wall texture based on position
-        //  drawWallTexture(x, y, col, row);
-        //break;
+         */
     }
+
+   /* private Texture drawWallTexture(int col, int row) {
+        // Implement your logic to determine the wall texture based on col and row values
+        // You can use conditions or calculations to decide the appropriate texture
+        // For now, let's just draw a placeholder texture
+        return (col + row) % 2 == 0 ? new Texture("wallup1.png") : new Texture("wallup2.png");
+    }
+
+    */
 
     // Draw the player if the current cell is an empty path (0)
     ////   drawPlayerTexture(x, y, col, row);
@@ -219,10 +316,10 @@ public class GameScreen implements Screen {
     //   return (col + row) % 2 == 0 ? getPlayerUp1() : getPlayerDown1();
     //}
 
-    private void createWalls() {
+   /* private void createWalls() {
         // Add walls to the list based on your maze array
-        int[][] mazeArray = game.maze;
-        float tileSize = 100; // Adjust this based on the size of your maze tiles
+        int[][] mazeArray = maze;
+        float tileSize = 200; // Adjust this based on the size of your maze tiles
 
         for (int row = 0; row < mazeArray.length; row++) {
             for (int col = 0; col < mazeArray[row].length; col++) {
@@ -238,47 +335,49 @@ public class GameScreen implements Screen {
         }
     }
 
-        // private void drawEnemyTexture(float x, float y) {
-        // Implement logic to draw the enemy or obstacle texture at position (x, y)
-        // Use the appropriate enemy or obstacle texture
+    */
 
-        // Example:
-        //   game.getSpriteBatch().draw(game.getEnemyTexture(), x, y, 32, 32);
-        //}
+    // private void drawEnemyTexture(float x, float y) {
+    // Implement logic to draw the enemy or obstacle texture at position (x, y)
+    // Use the appropriate enemy or obstacle texture
 
-
-        @Override
-        public void resize ( int width, int height){
-            camera.setToOrtho(false, width, height);
-            camera.position.set(game.maze[0].length * 0.5f * tileSize, game.maze.length * 0.5f * tileSize, 0);
-            camera.update();
-        }
-
-        @Override
-        public void pause () {
-        }
-
-        @Override
-        public void resume () {
-        }
-
-        @Override
-        public void show () {
-
-        }
-
-        @Override
-        public void hide () {
-        }
-
-        @Override
-        public void dispose () {
-        }
-
-        // Additional methods and logic can be added as needed for the game screen
+    // Example:
+    //   game.getSpriteBatch().draw(game.getEnemyTexture(), x, y, 32, 32);
+    //}
 
 
-        public Texture getPlayerUp1 () {
+    @Override
+    public void resize(int width, int height) {
+        // viewport.update(width, height, true);
+       // camera.position.set(width * 0.5f * tileSize, height * 0.5f * tileSize, 0);
+        //camera.update();
+    }
+
+    @Override
+    public void pause() {
+    }
+
+    @Override
+    public void resume() {
+    }
+
+    @Override
+    public void show() {
+
+    }
+
+    @Override
+    public void hide() {
+    }
+
+    @Override
+    public void dispose() {
+    }
+
+    // Additional methods and logic can be added as needed for the game screen
+
+
+        /* public Texture getPlayerUp1 () {
             return playerUp1;
         }
 
@@ -437,5 +536,7 @@ public class GameScreen implements Screen {
         public void setWallUp2 (Texture wallUp2){
             this.wallUp2 = wallUp2;
         }
-    }
+
+         */
+}
 
