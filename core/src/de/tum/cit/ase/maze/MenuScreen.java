@@ -16,6 +16,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import de.tum.cit.ase.maze.MazeRunnerGame;
 import games.spooky.gdx.nativefilechooser.NativeFileChooser;
 import games.spooky.gdx.nativefilechooser.NativeFileChooserCallback;
 import games.spooky.gdx.nativefilechooser.NativeFileChooserConfiguration;
@@ -42,6 +43,8 @@ public class MenuScreen implements Screen {
     private final Stage stage;
     private MazeRunnerGame mazeRunnerGame;
 
+    private int selectedLevel; // Store the selected file handle
+
     /**
      * Constructor for MenuScreen. Sets up the camera, viewport, stage, and UI elements.
      *
@@ -60,57 +63,72 @@ public class MenuScreen implements Screen {
         stage.addActor(table); // Add the table to the stage
 
         // Add a label as a title
-        table.add(new Label("Hello World from the Menu!", game.getSkin(), "title")).padBottom(80).row();
+        table.add(new Label("Maze Runner Game!", game.getSkin(), "title")).padBottom(80).row();
 
         // Create and add a button to go to the game screen
-        TextButton goToGameButton = new TextButton("Go To Game", game.getSkin());
-        TextButton selectLevel = new TextButton("Select Level", game.getSkin());
-        table.add(goToGameButton).width(300).row();
-        table.add(selectLevel).width(300).row();
-        goToGameButton.addListener(new ChangeListener() {
+        TextButton selectLevelButton = new TextButton("Load Map", game.getSkin());
+        TextButton exitButton = new TextButton("Exit", game.getSkin());
+        table.add(selectLevelButton).width(300).row();
+        table.add(exitButton).width(300).row();
+
+        selectLevelButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                // Call the method to open the file chooser
+                selectedLevel = openFileChooser();
                 try {
-                    game.goToGame(); // Change to the game screen when button is pressed
+                    game.goToGame(selectedLevel); // Change to the game screen when button is pressed
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
             }
         });
 
-        selectLevel.addListener(new ChangeListener() {
+        exitButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 // Call the method to open the file chooser
-                openFileChooser();
+                Gdx.app.exit();
             }
         });
     }
 
     // Method to open the file chooser
-    private void openFileChooser() {
+    private int openFileChooser() {
         // Configure the file chooser
         NativeFileChooserConfiguration config = new NativeFileChooserConfiguration();
-        config.directory = Gdx.files.internal("C:/Users/sindi/IdeaProjects/itp2324itp2324projectwork-mon3mu1sindi/maps");
+        config.directory = Gdx.files.internal("C:/IdeaProjects/itp2324itp2324projectwork-mon3mu1sindi/maps");
+
         // Create and show the file chooser
         mazeRunnerGame.nativeFileChooser.chooseFile(config, new NativeFileChooserCallback() {
             @Override
             public void onFileChosen(FileHandle file) {
-                // Handle the chosen file
+                // Handle the chosen file, e.g., extract the level number from the file name
                 Gdx.app.log("FileChooser", "Selected file: " + file.path());
+                selectedLevel = extractLevelFromFileName(file.name());
             }
 
             @Override
             public void onCancellation() {
-
-           }
+                // Handle cancellation if needed
+            }
 
             @Override
             public void onError(Exception exception) {
+                // Handle error if needed
+            }
+        });
 
-           }});
+        // Return the selected level (it might be 0 if none is selected)
+        return selectedLevel;
+    }
 
-
+    // Method to extract the level number from the file name
+    private int extractLevelFromFileName(String fileName) {
+        // Implement your logic to extract the level number from the file name
+        // For example, if file name is "level-2.properties", extract "2"
+        String levelString = fileName.replaceAll("[^0-9]", "");
+        return levelString.isEmpty() ? 0 : Integer.parseInt(levelString);
     }
 
 

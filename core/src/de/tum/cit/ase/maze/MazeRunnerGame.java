@@ -1,21 +1,17 @@
 package de.tum.cit.ase.maze;
 
-import com.badlogic.gdx.ApplicationListener;
-import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
 import games.spooky.gdx.nativefilechooser.NativeFileChooser;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 /**
  * The MazeRunnerGame class represents the core of the Maze Runner game.
@@ -34,14 +30,24 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
 
     // Character animation downwards
     private Animation<TextureRegion> characterDownAnimation;
+    private Animation<TextureRegion> characterUpAnimation;
+    private Animation<TextureRegion> characterLeftAnimation;
+    private Animation<TextureRegion> characterRightAnimation;
 
     // Texture for the player in different positions
+
+    private int lives = 5; // Set the initial number of lives
 
 
     // Maze array
     int[][] maze;
 
-    NativeFileChooser nativeFileChooser;
+    public NativeFileChooser nativeFileChooser;
+
+    private Vector2 characterPosition;
+
+    private int currentLevel = 1; // Default level
+
 
 
     /**
@@ -72,6 +78,8 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
         backgroundMusic.setLooping(true);
         backgroundMusic.play();
 
+        // Initial position
+        characterPosition = new Vector2(100, 100);
 
         goToMenu(); // Navigate to the menu screen
     }
@@ -90,8 +98,8 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
     /**
      * Switches to the game screen.
      */
-    public void goToGame() throws IOException {
-        this.setScreen(new GameScreen(this)); // Set the current screen to GameScreen
+    public void goToGame(int level) throws IOException {
+        this.setScreen(new GameScreen(this, level)); // Set the current screen to GameScreen
         if (menuScreen != null) {
             menuScreen.dispose(); // Dispose the menu screen if it exists
             menuScreen = null;
@@ -117,7 +125,11 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
         }
 
         characterDownAnimation = new Animation<>(0.1f, walkFrames);
+        characterUpAnimation = new Animation<>(0.1f, walkFrames);
+        characterLeftAnimation = new Animation<>(0.1f, walkFrames);
+        characterRightAnimation = new Animation<>(0.1f, walkFrames);
     }
+
 
     /**
      * Cleans up resources when the game is disposed.
@@ -142,6 +154,15 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
     public SpriteBatch getSpriteBatch() {
         return spriteBatch;
     }
+
+    public void setCurrentLevel(int level) {
+        this.currentLevel = level;
+    }
+
+
+    // TODO 1. make sure the key up ıs beıng detected Gdx.ınput.ısKeyPressed()
+    //  2. make sure when key up ıs pressednö player moves
+    //  3. when all works. do all dırectıons
 
 
 }
