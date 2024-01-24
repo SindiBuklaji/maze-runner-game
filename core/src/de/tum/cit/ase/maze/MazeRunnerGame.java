@@ -112,22 +112,41 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
     private void loadCharacterAnimation() {
         Texture walkSheet = new Texture(Gdx.files.internal("character.png"));
 
-        int frameWidth = 16;
-        int frameHeight = 32;
         int animationFrames = 4;
+        int frameDownWidth = 16;
+        int frameDownHeight = 32;
+        int frameUpWidth = 32;
+        int frameUpHeight = 48;
+        int frameLeftWidth = 48;
+        int frameLeftHeight = 64;
+        int frameRightWidth = 64;
+        int frameRightHeight = 90;
+
 
         // libGDX internal Array instead of ArrayList because of performance
-        Array<TextureRegion> walkFrames = new Array<>(TextureRegion.class);
+        Array<TextureRegion> walkDownFrames = new Array<>(TextureRegion.class);
+        Array<TextureRegion> walkUpFrames = new Array<>(TextureRegion.class);
+        Array<TextureRegion> walkLeftFrames = new Array<>(TextureRegion.class);
+        Array<TextureRegion> walkRightFrames = new Array<>(TextureRegion.class);
 
         // Add all frames to the animation
         for (int col = 0; col < animationFrames; col++) {
-            walkFrames.add(new TextureRegion(walkSheet, col * frameWidth, 0, frameWidth, frameHeight));
+            walkDownFrames.add(new TextureRegion(walkSheet, col * frameDownWidth, 0, frameDownWidth, frameDownHeight));
+        }
+        for (int col = 0; col < animationFrames; col++) {
+            walkUpFrames.add(new TextureRegion(walkSheet, col * frameUpWidth, 0, frameUpWidth, frameUpHeight));
+        }
+        for (int col = 0; col < animationFrames; col++) {
+            walkLeftFrames.add(new TextureRegion(walkSheet, col * frameLeftWidth, 0, frameLeftWidth, frameLeftHeight));
+        }
+        for (int col = 0; col < animationFrames; col++) {
+            walkRightFrames.add(new TextureRegion(walkSheet, col * frameRightWidth, 0, frameRightWidth, frameRightHeight));
         }
 
-        characterDownAnimation = new Animation<>(0.1f, walkFrames);
-        characterUpAnimation = new Animation<>(0.1f, walkFrames);
-        characterLeftAnimation = new Animation<>(0.1f, walkFrames);
-        characterRightAnimation = new Animation<>(0.1f, walkFrames);
+        characterDownAnimation = new Animation<>(0.1f, walkDownFrames);
+        characterUpAnimation = new Animation<>(0.1f, walkUpFrames);
+        characterLeftAnimation = new Animation<>(0.1f, walkLeftFrames);
+        characterRightAnimation = new Animation<>(0.1f, walkRightFrames);
     }
 
 
@@ -151,6 +170,12 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
         return characterDownAnimation;
     }
 
+    public Animation<TextureRegion> getCharacterUpAnimation() { return characterUpAnimation; }
+
+    public Animation<TextureRegion> getCharacterLeftAnimation() { return characterLeftAnimation; }
+
+    public Animation<TextureRegion> getCharacterRightAnimation() { return characterRightAnimation; }
+
     public SpriteBatch getSpriteBatch() {
         return spriteBatch;
     }
@@ -158,11 +183,5 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
     public void setCurrentLevel(int level) {
         this.currentLevel = level;
     }
-
-
-    // TODO 1. make sure the key up ıs beıng detected Gdx.ınput.ısKeyPressed()
-    //  2. make sure when key up ıs pressednö player moves
-    //  3. when all works. do all dırectıons
-
 
 }

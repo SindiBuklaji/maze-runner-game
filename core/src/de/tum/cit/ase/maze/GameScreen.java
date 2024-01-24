@@ -6,8 +6,10 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import javax.swing.*;
@@ -21,6 +23,7 @@ import java.util.*;
  */
 public class GameScreen implements Screen {
 
+
     private final MazeRunnerGame game;
     //bane final po nuk bani
     private final OrthographicCamera camera;
@@ -30,17 +33,20 @@ public class GameScreen implements Screen {
     private Map<String, Integer> mazeMap;
     private int tileSize = 48;
 
-    private TextureRegion wallRegion;
-    private TextureRegion entryRegion;
-    private TextureRegion exitRegion;
-    private TextureRegion fireRegion;
-    private TextureRegion ghostRegion;
-    private TextureRegion treasureRegion;
+    private TextureRegion wallRegion, entryRegion, exitRegion, fireRegion, ghostRegion, treasureRegion;
+
+    private float characterX = 96;
+    private float characterY = 64;
+
+    private int livesRemaining = 5; // Initial number of lives
+    private boolean keyCollected = false;
+
 
     int mazeWidth;
     int mazeHeight;
 
     private float characterSpeed = 600f; // Adjust the speed as needed
+
 
 
     /**
@@ -113,31 +119,45 @@ public class GameScreen implements Screen {
 
     }
 
-
     // Screen interface methods with necessary functionality
     @Override
     public void render(float delta) {
+
         float characterX = camera.position.x - 96; // Adjusted for character size
         float characterY = camera.position.y - 64; // Adjusted for character size
+
 
         // Check for escape key press to go back to the menu
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             game.goToMenu();
         }
+
+
         // Update character position based on arrow key inputs
-        if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
-            characterY += characterSpeed * Gdx.graphics.getDeltaTime();;
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            if (!checkCollision(characterX, characterY + characterSpeed * Gdx.graphics.getDeltaTime())) {
+            characterY += characterSpeed * Gdx.graphics.getDeltaTime();
+            }
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
-            characterY -= characterSpeed * Gdx.graphics.getDeltaTime();;
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            if (!checkCollision(characterX, characterY - characterSpeed * Gdx.graphics.getDeltaTime())) {
+            characterY -= characterSpeed * Gdx.graphics.getDeltaTime();
+            }
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
-            characterX += characterSpeed * Gdx.graphics.getDeltaTime();;
+
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            if (!checkCollision(characterX + characterSpeed * Gdx.graphics.getDeltaTime(), characterY)) {
+                characterX += characterSpeed * Gdx.graphics.getDeltaTime();
+            }
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
-            characterX -= characterSpeed * Gdx.graphics.getDeltaTime();;
+
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            if (!checkCollision(characterX - characterSpeed * Gdx.graphics.getDeltaTime(), characterY)) {
+            characterX -= characterSpeed * Gdx.graphics.getDeltaTime();
+             }
         }
+
 
         // Set the new position of the character
         camera.position.set(characterX + 96, characterY + 64, 0); // Adjusted for character size
@@ -153,13 +173,13 @@ public class GameScreen implements Screen {
 
 
         // Draw the character
-        sinusInput += delta;
-       game.getSpriteBatch().draw(
+       sinusInput += delta;
+        game.getSpriteBatch().draw(
                 game.getCharacterDownAnimation().getKeyFrame(sinusInput, true),
                 camera.position.x - 96,
                 camera.position.y - 64,
-                48,
-                96
+                36,
+                72
         );
 
        // Draw the fire
@@ -193,7 +213,56 @@ public class GameScreen implements Screen {
 
         game.getSpriteBatch().end(); // Important to call this after drawing everything
         camera.update();
+        renderHUD();
 
+    }
+
+    private boolean checkCollision(float x, float y) {
+        // Iterate through mazeMap to check for collision with walls
+        for (Map.Entry<String, Integer> entry : mazeMap.entrySet()) {
+            int value = entry.getValue();
+            if (value == 0) { // Wall
+                String[] coordinates = entry.getKey().split(",");
+                float wallX = Integer.parseInt(coordinates[0]) * tileSize;
+                float wallY = Integer.parseInt(coordinates[1]) * tileSize;
+
+                if (x < wallX + tileSize && x + 48 > wallX && y < wallY + tileSize && y + 64 > wallY) {
+                    // Collision detected with a wall
+                    return true;
+                }
+            }
+        }
+        // No collision detected
+        return false;
+    }
+
+    private void renderHUD() {
+        // Set up and begin drawing with the sprite batch
+        game.getSpriteBatch().setProjectionMatrix(camera.combined);
+        game.getSpriteBatch().begin();
+
+        // Draw lives remaining
+        font.draw(game.getSpriteBatch(), "Lives: " + livesRemaining, 10, Gdx.graphics.getHeight() - 20);
+
+        // Draw key collected status
+        String keyStatus = keyCollected ? "Key Collected" : "Key Not Collected";
+        font.draw(game.getSpriteBatch(), keyStatus, 10, Gdx.graphics.getHeight() - 40);
+
+        game.getSpriteBatch().end();
+    }
+
+    // Add methods to update lives and key status based on game events
+    public void decreaseLives() {
+        livesRemaining--;
+        if (livesRemaining <= 0) {
+            // Game over logic
+            game.goToMenu();
+        }
+    }
+
+    public void collectKey() {
+        keyCollected = true;
+        // Add logic for what happens when the key is collected
     }
 
     @Override
@@ -220,6 +289,5 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
     }
-
 
 }
