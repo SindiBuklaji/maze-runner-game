@@ -31,12 +31,15 @@ public class GameScreen implements Screen {
 
     private float sinusInput = 0f;
     private Map<String, Integer> mazeMap;
-    private int tileSize = 48;
+    private int tileSize = 76;
 
-    private TextureRegion wallRegion, entryRegion, exitRegion, fireRegion, ghostRegion, treasureRegion;
+    private TextureRegion wallRegion, entryRegion, exitRegion, fireRegion, ghostRegion, treasureRegion, floorRegion;
 
-    private float characterX = 96;
-    private float characterY = 64;
+    private float characterX;
+    private float characterY;
+
+    int entryX;
+    int entryY;
 
     private int livesRemaining = 5; // Initial number of lives
     private boolean keyCollected = false;
@@ -45,8 +48,11 @@ public class GameScreen implements Screen {
     int mazeWidth;
     int mazeHeight;
 
-    private float characterSpeed = 600f; // Adjust the speed as needed
+    int maxX;
+    int maxY;
 
+
+    private float characterSpeed = 300f; // Adjust the speed as needed
 
 
     /**
@@ -74,6 +80,8 @@ public class GameScreen implements Screen {
         Texture fireTexture = new Texture(Gdx.files.internal("objects.png"));
         Texture ghostTexture = new Texture(Gdx.files.internal("mobs.png"));
         Texture treasureTexture = new Texture(Gdx.files.internal("basictiles.png"));
+        Texture floorTexture = new Texture(Gdx.files.internal("basictiles.png"));
+
 
         // Load your textures
         wallRegion = new TextureRegion(wallTexture, 0, 0, 16, 16);
@@ -82,12 +90,12 @@ public class GameScreen implements Screen {
         fireRegion = new TextureRegion(fireTexture, 80, 48, 16, 16);
         ghostRegion = new TextureRegion(ghostTexture, 96, 64, 16, 16);
         treasureRegion = new TextureRegion(treasureTexture, 64, 64, 16, 16);
+        floorRegion = new TextureRegion(floorTexture, 0, 16, 16, 16);
+
 
         properties.load(inputStream);
 
         mazeMap = new HashMap<>();
-        int maxX = 0;
-        int maxY = 0;
 
         for (String key : properties.stringPropertyNames()) {
             String[] coordinates = key.split(",");
@@ -96,20 +104,35 @@ public class GameScreen implements Screen {
             int value = Integer.parseInt(properties.getProperty(key));
             mazeMap.put(x + "," + y, value);
 
-            maxX = Math.max(maxX, x);
+            if (x > maxX) {
+                maxX = x;
+            }
+            if (y > maxY) {
+                maxY = y;
+            }
         }
 
-        System.out.println(maxX);
+
+       /* for (Map.Entry<String, Integer> entry : mazeMap.entrySet()) {
+            if (entry.getValue() == 1) {
+                String[] coordinates = entry.getKey().split(",");
+                entryX = Integer.parseInt(coordinates[0]) * tileSize;
+                entryY = Integer.parseInt(coordinates[1]) * tileSize;
+                break; // Exit the loop once the entry point is found
+            }
+        }
+
+        */
+
 
 
         // Create and configure the camera for the game view
         this.camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.zoom = 1.0f;
-        //this.viewport = new ScreenViewport(camera);
 
         //Set the initial position of the camera to the center of the maze
-        camera.position.set(mazeWidth * 0.5f, mazeHeight * 0.5f, 0);
+        //camera.position.set(mazeWidth * 0.5f, mazeHeight * 0.5f, 0);
 
         //Update the camera projection
         camera.update();
@@ -136,13 +159,13 @@ public class GameScreen implements Screen {
         // Update character position based on arrow key inputs
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             if (!checkCollision(characterX, characterY + characterSpeed * Gdx.graphics.getDeltaTime())) {
-            characterY += characterSpeed * Gdx.graphics.getDeltaTime();
+                characterY += characterSpeed * Gdx.graphics.getDeltaTime();
             }
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             if (!checkCollision(characterX, characterY - characterSpeed * Gdx.graphics.getDeltaTime())) {
-            characterY -= characterSpeed * Gdx.graphics.getDeltaTime();
+                characterY -= characterSpeed * Gdx.graphics.getDeltaTime();
             }
         }
 
@@ -154,8 +177,9 @@ public class GameScreen implements Screen {
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             if (!checkCollision(characterX - characterSpeed * Gdx.graphics.getDeltaTime(), characterY)) {
-            characterX -= characterSpeed * Gdx.graphics.getDeltaTime();
-             }
+                characterX -= characterSpeed * Gdx.graphics.getDeltaTime();
+            }
+
         }
 
 
@@ -166,23 +190,26 @@ public class GameScreen implements Screen {
         ScreenUtils.clear(0, 0, 0, 1); // Clear the screen
 
 
-
         // Set up and begin drawing with the sprite batch
         game.getSpriteBatch().setProjectionMatrix(camera.combined);
         game.getSpriteBatch().begin(); // Important to call this before drawing anything
 
+        for (int x = 0; x <= maxX; x++) {
+            for (int y = 0; y <= maxY; y++) {
+                game.getSpriteBatch().draw(floorRegion, x * tileSize, y * tileSize, tileSize, tileSize);
+            }
+        }
+
 
         // Draw the character
-       sinusInput += delta;
+        sinusInput += delta;
         game.getSpriteBatch().draw(
                 game.getCharacterDownAnimation().getKeyFrame(sinusInput, true),
-                camera.position.x - 96,
-                camera.position.y - 64,
+                characterX,
+                characterY,
                 36,
-                72
+                56
         );
-
-       // Draw the fire
 
 
         for (Map.Entry<String, Integer> entry : mazeMap.entrySet()) {
@@ -211,11 +238,13 @@ public class GameScreen implements Screen {
             }
         }
 
+
         game.getSpriteBatch().end(); // Important to call this after drawing everything
         camera.update();
         renderHUD();
 
     }
+
 
     private boolean checkCollision(float x, float y) {
         // Iterate through mazeMap to check for collision with walls
@@ -228,6 +257,7 @@ public class GameScreen implements Screen {
 
                 if (x < wallX + tileSize && x + 48 > wallX && y < wallY + tileSize && y + 64 > wallY) {
                     // Collision detected with a wall
+                    System.out.println("Collision detected with a wall!");
                     return true;
                 }
             }

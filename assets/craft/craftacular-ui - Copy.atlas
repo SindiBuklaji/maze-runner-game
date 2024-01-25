@@ -1,0 +1,12 @@
+purpleFire.png
+size: 192, 32
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+blueFire
+  rotate: false
+  xy: 0, 0
+  size: 192, 32
+  orig: 192, 32
+  offset: 0, 0
+  index: -1
