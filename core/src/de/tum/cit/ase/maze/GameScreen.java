@@ -34,6 +34,10 @@ public class GameScreen implements Screen {
     private int tileSize = 76;
 
     private TextureRegion wallRegion, entryRegion, exitRegion, fireRegion, ghostRegion, treasureRegion, floorRegion;
+    private TextureRegion verticalWallRegion;
+    private TextureRegion horizontalWallRegion;
+
+
 
     private float characterX;
     private float characterY;
@@ -82,6 +86,9 @@ public class GameScreen implements Screen {
         Texture treasureTexture = new Texture(Gdx.files.internal("basictiles.png"));
         Texture floorTexture = new Texture(Gdx.files.internal("basictiles.png"));
 
+        Texture verticalWallTexture = new Texture(Gdx.files.internal("basictiles.png"));
+        Texture horizontalWallTexture = new Texture(Gdx.files.internal("basictiles.png"));
+
 
         // Load your textures
         wallRegion = new TextureRegion(wallTexture, 0, 0, 16, 16);
@@ -91,6 +98,10 @@ public class GameScreen implements Screen {
         ghostRegion = new TextureRegion(ghostTexture, 96, 64, 16, 16);
         treasureRegion = new TextureRegion(treasureTexture, 64, 64, 16, 16);
         floorRegion = new TextureRegion(floorTexture, 0, 16, 16, 16);
+
+
+        verticalWallRegion = new TextureRegion(verticalWallTexture, 16, 0, 16, 16);
+        horizontalWallRegion = new TextureRegion(horizontalWallTexture, 32, 0, 16, 16);
 
 
         properties.load(inputStream);
@@ -207,14 +218,9 @@ public class GameScreen implements Screen {
                 game.getCharacterDownAnimation().getKeyFrame(sinusInput, true),
                 characterX,
                 characterY,
-                36,
-                56
+                48,
+                64
         );
-
-
-
-
-
 
         for (Map.Entry<String, Integer> entry : mazeMap.entrySet()) {
             String[] coordinates = entry.getKey().split(",");
@@ -224,8 +230,22 @@ public class GameScreen implements Screen {
 
             // 0 == walls
             if (value == 0) {
-                game.getSpriteBatch().draw(wallRegion, x * tileSize, y * tileSize, tileSize, tileSize);
-                // 1 == open paths
+                int wallX = x * tileSize;
+                int wallY = y * tileSize;
+
+                //check orientation of the wall (vertical or horizontal)
+                boolean isVerticalWall = isVerticalWall(x, y);
+
+                // Choose the appropriate texture based on the wall orientation
+                TextureRegion wallTexture;
+                if (isVerticalWall) {
+                    wallTexture = verticalWallRegion;
+                } else {
+                    wallTexture = horizontalWallRegion;
+                }
+
+                // Draw the wall with the selected texture
+                game.getSpriteBatch().draw(wallTexture, wallX, wallY, tileSize, tileSize);                // 1 == open paths
             } else if (value == 1) {
                 game.getSpriteBatch().draw(entryRegion, x * tileSize, y * tileSize, tileSize, tileSize);
                 // 2 == exits (door)
@@ -297,6 +317,14 @@ public class GameScreen implements Screen {
     public void collectKey() {
         keyCollected = true;
         // Add logic for what happens when the key is collected
+    }
+
+    private boolean isVerticalWall(int x, int y) {
+        // Check if there's a wall to the north or south
+        //boolean hasWallAbove = mazeMap.containsKey((x) + "," + (y + 1)) && mazeMap.get((x) + "," + (y + 1)) == 0;
+        boolean hasWallBelow = mazeMap.containsKey((x) + "," + (y - 1)) && mazeMap.get((x) + "," + (y - 1)) == 0;
+
+        return ( hasWallBelow) ;
     }
 
     @Override
