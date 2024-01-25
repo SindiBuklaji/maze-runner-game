@@ -212,6 +212,10 @@ public class GameScreen implements Screen {
         );
 
 
+
+
+
+
         for (Map.Entry<String, Integer> entry : mazeMap.entrySet()) {
             String[] coordinates = entry.getKey().split(",");
             int x = Integer.parseInt(coordinates[0]);
