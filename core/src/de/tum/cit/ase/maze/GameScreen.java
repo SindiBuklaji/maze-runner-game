@@ -360,7 +360,7 @@ public class GameScreen implements Screen {
                 float wallY = Integer.parseInt(coordinates[1]) * tileSize;
                 float offset = 48f; // Adjust the offset as needed
 
-                if (x < wallX + tileSize && x + offset > wallX && y < wallY-10 + tileSize && y + offset > wallY) {
+                if (x < wallX-10 + tileSize && x + offset > wallX-20 && y < wallY-10 + tileSize && y + offset > wallY) {
                     // Collision detected with a wall
                     return true;
                 }
