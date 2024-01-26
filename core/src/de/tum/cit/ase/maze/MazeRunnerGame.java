@@ -22,8 +22,10 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
     private MenuScreen menuScreen;
     private GameScreen gameScreen;
 
+
     // Sprite Batch for rendering
     private SpriteBatch spriteBatch;
+    private SpriteBatch hudSpriteBatch;
 
     // UI Skin
     private Skin skin;
@@ -33,6 +35,7 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
     private Animation<TextureRegion> characterUpAnimation;
     private Animation<TextureRegion> characterLeftAnimation;
     private Animation<TextureRegion> characterRightAnimation;
+    private Animation<TextureRegion> fireAnimation;
 
     // Texture for the player in different positions
 
@@ -72,16 +75,19 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
         skin = new Skin(Gdx.files.internal("craft/craftacular-ui.json")); // Load UI skin
         this.loadCharacterAnimation(); // Load character animation
 
+        hudSpriteBatch = new SpriteBatch();
+
         // Play some background music
         // Background sound
-        Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("background.mp3"));
+     /*   Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("background.mp3"));
         backgroundMusic.setLooping(true);
         backgroundMusic.play();
-
+*/
         // Initial position
         characterPosition = new Vector2(100, 100);
 
         goToMenu(); // Navigate to the menu screen
+
     }
 
     /**
@@ -113,15 +119,8 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
         Texture walkSheet = new Texture(Gdx.files.internal("character.png"));
 
         int animationFrames = 4;
-        int frameDownWidth = 16;
-        int frameDownHeight = 32;
-        int frameUpWidth = 32;
-        int frameUpHeight = 48;
-        int frameLeftWidth = 48;
-        int frameLeftHeight = 64;
-        int frameRightWidth = 64;
-        int frameRightHeight = 90;
-
+        int frameWidth = 16;
+        int frameHeight = 32;
 
         // libGDX internal Array instead of ArrayList because of performance
         Array<TextureRegion> walkDownFrames = new Array<>(TextureRegion.class);
@@ -131,22 +130,40 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
 
         // Add all frames to the animation
         for (int col = 0; col < animationFrames; col++) {
-            walkDownFrames.add(new TextureRegion(walkSheet, col * frameDownWidth, 0, frameDownWidth, frameDownHeight));
+            walkDownFrames.add(new TextureRegion(walkSheet, col * frameWidth, 0, frameWidth, frameHeight));
         }
         for (int col = 0; col < animationFrames; col++) {
-            walkUpFrames.add(new TextureRegion(walkSheet, col * frameUpWidth, 0, frameUpWidth, frameUpHeight));
+            walkUpFrames.add(new TextureRegion(walkSheet, col * frameWidth, 64, frameWidth, frameHeight));
         }
         for (int col = 0; col < animationFrames; col++) {
-            walkLeftFrames.add(new TextureRegion(walkSheet, col * frameLeftWidth, 0, frameLeftWidth, frameLeftHeight));
+            walkLeftFrames.add(new TextureRegion(walkSheet, col * frameWidth, 96, frameWidth, frameHeight));
         }
         for (int col = 0; col < animationFrames; col++) {
-            walkRightFrames.add(new TextureRegion(walkSheet, col * frameRightWidth, 0, frameRightWidth, frameRightHeight));
+            walkRightFrames.add(new TextureRegion(walkSheet, col * frameWidth, 32, frameWidth, frameHeight));
         }
 
         characterDownAnimation = new Animation<>(0.1f, walkDownFrames);
         characterUpAnimation = new Animation<>(0.1f, walkUpFrames);
         characterLeftAnimation = new Animation<>(0.1f, walkLeftFrames);
         characterRightAnimation = new Animation<>(0.1f, walkRightFrames);
+
+    }
+
+    public void loadFireAnimation() {
+        Texture walkSheet = new Texture(Gdx.files.internal("objects.png"));
+
+        int animationFrames = 7;
+        int frameWidth = 16;
+        int frameHeight = 32;
+
+        Array<TextureRegion> walkFireFrames = new Array<>(TextureRegion.class);
+
+        for (int col = 0; col < animationFrames; col++) {
+            walkFireFrames.add(new TextureRegion(walkSheet, col * frameWidth+64, 64, frameWidth, frameHeight));
+        }
+
+        fireAnimation =  new Animation<>(0.1f, walkFireFrames);
+
     }
 
 
@@ -184,4 +201,15 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
         this.currentLevel = level;
     }
 
+    public void resumeGame() {
+        setScreen(gameScreen);
+    }
+
+    public SpriteBatch getHudSpriteBatch() {
+        return hudSpriteBatch;
+    }
+
+    public Animation<TextureRegion> getFireAnimation() {
+        return fireAnimation;
+    }
 }

@@ -34,11 +34,9 @@ public class GameScreen implements Screen {
     private int tileSize = 76;
 
     private TextureRegion wallRegion, entryRegion, exitRegion, fireRegion, ghostRegion, treasureRegion, floorRegion;
+
     private TextureRegion verticalWallRegion;
     private TextureRegion horizontalWallRegion;
-
-
-
     private float characterX;
     private float characterY;
 
@@ -47,7 +45,7 @@ public class GameScreen implements Screen {
 
     private int livesRemaining = 5; // Initial number of lives
     private boolean keyCollected = false;
-
+    private boolean collisionOccurred = false;
 
     int mazeWidth;
     int mazeHeight;
@@ -55,8 +53,19 @@ public class GameScreen implements Screen {
     int maxX;
     int maxY;
 
-
     private float characterSpeed = 300f; // Adjust the speed as needed
+    private float collisionCooldown = 0f;
+    private final float cooldownDuration = 2f; // Set the cooldown duration in seconds
+    private final HUDScreen hud;
+    private boolean gameOver;
+
+    private boolean characterStartPositionSet = false;
+
+    // Declare variables to store the current animation
+    private Animation<TextureRegion> currentAnimation;
+
+    // Declare variables to store the fire animation
+    private Animation<TextureRegion> fireAnimation;
 
 
     /**
@@ -68,6 +77,11 @@ public class GameScreen implements Screen {
 
     public GameScreen(MazeRunnerGame game, int level) throws IOException {
         this.game = game;
+
+        currentAnimation = game.getCharacterDownAnimation(); // Initialize with the default animation
+
+        // Initialize the fire animation
+        fireAnimation = game.getFireAnimation();
 
         // Calculate maze dimensions based on window size
         mazeWidth = Gdx.graphics.getWidth();
@@ -99,10 +113,8 @@ public class GameScreen implements Screen {
         treasureRegion = new TextureRegion(treasureTexture, 64, 64, 16, 16);
         floorRegion = new TextureRegion(floorTexture, 0, 16, 16, 16);
 
-
         verticalWallRegion = new TextureRegion(verticalWallTexture, 16, 0, 16, 16);
         horizontalWallRegion = new TextureRegion(horizontalWallTexture, 32, 0, 16, 16);
-
 
         properties.load(inputStream);
 
@@ -124,32 +136,26 @@ public class GameScreen implements Screen {
         }
 
 
-       /* for (Map.Entry<String, Integer> entry : mazeMap.entrySet()) {
-            if (entry.getValue() == 1) {
-                String[] coordinates = entry.getKey().split(",");
-                entryX = Integer.parseInt(coordinates[0]) * tileSize;
-                entryY = Integer.parseInt(coordinates[1]) * tileSize;
-                break; // Exit the loop once the entry point is found
-            }
-        }
-
-        */
-
-
-
         // Create and configure the camera for the game view
         this.camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.zoom = 1.0f;
+        //this.viewport = new ScreenViewport(camera);
 
         //Set the initial position of the camera to the center of the maze
-        //camera.position.set(mazeWidth * 0.5f, mazeHeight * 0.5f, 0);
+        camera.position.set(mazeWidth * 0.5f, mazeHeight * 0.5f, 0);
 
         //Update the camera projection
         camera.update();
 
+        // Initialize character position if it hasn't been set yet
+        if (!characterStartPositionSet) {
+            setCharacterStartPosition();
+        }
+
         // Get the font from the game's skin
         font = game.getSkin().getFont("font");
+        hud = new HUDScreen(game.getSkin(), game.getHudSpriteBatch());
 
     }
 
@@ -160,6 +166,23 @@ public class GameScreen implements Screen {
         float characterX = camera.position.x - 96; // Adjusted for character size
         float characterY = camera.position.y - 64; // Adjusted for character size
 
+        // Update HUD information
+        hud.update(livesRemaining, keyCollected);
+
+        // Decrease the collisionCooldown
+        collisionCooldown = Math.max(0f, collisionCooldown - delta);
+
+        // Check if cooldown has elapsed and collision has occurred
+        if (collisionCooldown <= 0 && collisionOccurred) {
+            // Reset the collision flag
+            collisionOccurred = false;
+
+            // Decrease the lives after cooldown has elapsed
+            decreaseLives();
+
+            // Reset the cooldown timer
+            collisionCooldown = cooldownDuration;
+        }
 
         // Check for escape key press to go back to the menu
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
@@ -170,27 +193,30 @@ public class GameScreen implements Screen {
         // Update character position based on arrow key inputs
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             if (!checkCollision(characterX, characterY + characterSpeed * Gdx.graphics.getDeltaTime())) {
-                characterY += characterSpeed * Gdx.graphics.getDeltaTime();
+            characterY += characterSpeed * Gdx.graphics.getDeltaTime();
+            currentAnimation = game.getCharacterUpAnimation();
             }
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             if (!checkCollision(characterX, characterY - characterSpeed * Gdx.graphics.getDeltaTime())) {
-                characterY -= characterSpeed * Gdx.graphics.getDeltaTime();
+            characterY -= characterSpeed * Gdx.graphics.getDeltaTime();
+            currentAnimation = game.getCharacterDownAnimation();
             }
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             if (!checkCollision(characterX + characterSpeed * Gdx.graphics.getDeltaTime(), characterY)) {
                 characterX += characterSpeed * Gdx.graphics.getDeltaTime();
+                currentAnimation = game.getCharacterRightAnimation();
             }
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             if (!checkCollision(characterX - characterSpeed * Gdx.graphics.getDeltaTime(), characterY)) {
-                characterX -= characterSpeed * Gdx.graphics.getDeltaTime();
+            characterX -= characterSpeed * Gdx.graphics.getDeltaTime();
+            currentAnimation = game.getCharacterLeftAnimation();
             }
-
         }
 
 
@@ -199,6 +225,7 @@ public class GameScreen implements Screen {
         camera.update();
 
         ScreenUtils.clear(0, 0, 0, 1); // Clear the screen
+
 
 
         // Set up and begin drawing with the sprite batch
@@ -210,17 +237,6 @@ public class GameScreen implements Screen {
                 game.getSpriteBatch().draw(floorRegion, x * tileSize, y * tileSize, tileSize, tileSize);
             }
         }
-
-
-        // Draw the character
-        sinusInput += delta;
-        game.getSpriteBatch().draw(
-                game.getCharacterDownAnimation().getKeyFrame(sinusInput, true),
-                characterX,
-                characterY,
-                48,
-                64
-        );
 
         for (Map.Entry<String, Integer> entry : mazeMap.entrySet()) {
             String[] coordinates = entry.getKey().split(",");
@@ -245,30 +261,78 @@ public class GameScreen implements Screen {
                 }
 
                 // Draw the wall with the selected texture
-                game.getSpriteBatch().draw(wallTexture, wallX, wallY, tileSize, tileSize);                // 1 == open paths
+                game.getSpriteBatch().draw(wallTexture, wallX, wallY, tileSize, tileSize);
+                // 1 == open paths
             } else if (value == 1) {
                 game.getSpriteBatch().draw(entryRegion, x * tileSize, y * tileSize, tileSize, tileSize);
                 // 2 == exits (door)
             } else if (value == 2) {
-                game.getSpriteBatch().draw(exitRegion, x * tileSize, y * tileSize, tileSize, tileSize);
+               // game.getSpriteBatch().draw(exitRegion, x * tileSize, y * tileSize, tileSize, tileSize);
+                float doorX = x * tileSize;
+                float doorY = y * tileSize;
+
+                // Only draw the doors if the key has been collected
+                if (keyCollected) {
+                    game.getSpriteBatch().draw(exitRegion, doorX, doorY, tileSize, tileSize);
+                } else {
+                    game.getSpriteBatch().draw(exitRegion, doorX, doorY, tileSize, tileSize);
+                }
                 // 3 == fire
             } else if (value == 3) {
                 game.getSpriteBatch().draw(fireRegion, x * tileSize, y * tileSize, tileSize, tileSize);
+                if (collidesWithCharacter(x, y)) {
+                    decreaseLives();
+                    collisionOccurred = true; // Set collision flag to true
+                }
                 // 4 == ghosts
             } else if (value == 4) {
                 game.getSpriteBatch().draw(ghostRegion, x * tileSize, y * tileSize, tileSize, tileSize);
+                if (collidesWithCharacter(x, y)) {
+                    decreaseLives();
+                    collisionOccurred = true; // Set collision flag to true
+                }
             } else if (value == 5) {
                 game.getSpriteBatch().draw(treasureRegion, x * tileSize, y * tileSize, tileSize, tileSize);
+                // Check if the character collides with the key
+                if (collidesWithCharacter(x, y)) {
+                    collectKey();
+                    collisionOccurred = true; // Set collision flag to true
+                }
             }
         }
 
+        // Draw the character
+        sinusInput += delta;
+        game.getSpriteBatch().draw(
+                currentAnimation.getKeyFrame(sinusInput, true),
+                characterX,
+                characterY,
+                tileSize + 10,
+                tileSize + 40
+        );
+
+
+        // Render game elements
+        if (!gameOver) {
+            // Render game elements as usual
+        } else {
+            // Switch to game over screen
+            game.setScreen(new GameOverScreen(game));
+        }
 
         game.getSpriteBatch().end(); // Important to call this after drawing everything
+
+        // Set up and begin drawing with the sprite batch
+        game.getHudSpriteBatch().setProjectionMatrix(hud.getCamera().combined);
+        game.getHudSpriteBatch().begin();
+
+        // Draw the HUD at the top of the screen
+        hud.render(game.getHudSpriteBatch());
+        game.getHudSpriteBatch().end();
+
         camera.update();
-        renderHUD();
 
     }
-
 
     private boolean checkCollision(float x, float y) {
         // Iterate through mazeMap to check for collision with walls
@@ -278,10 +342,10 @@ public class GameScreen implements Screen {
                 String[] coordinates = entry.getKey().split(",");
                 float wallX = Integer.parseInt(coordinates[0]) * tileSize;
                 float wallY = Integer.parseInt(coordinates[1]) * tileSize;
+                float offset = 48f; // Adjust the offset as needed
 
-                if (x < wallX + tileSize && x + 48 > wallX && y < wallY + tileSize && y + 64 > wallY) {
+                if (x < wallX + tileSize && x + offset > wallX && y < wallY-10 + tileSize && y + offset > wallY) {
                     // Collision detected with a wall
-                    System.out.println("Collision detected with a wall!");
                     return true;
                 }
             }
@@ -290,27 +354,12 @@ public class GameScreen implements Screen {
         return false;
     }
 
-    private void renderHUD() {
-        // Set up and begin drawing with the sprite batch
-        game.getSpriteBatch().setProjectionMatrix(camera.combined);
-        game.getSpriteBatch().begin();
-
-        // Draw lives remaining
-        font.draw(game.getSpriteBatch(), "Lives: " + livesRemaining, 10, Gdx.graphics.getHeight() - 20);
-
-        // Draw key collected status
-        String keyStatus = keyCollected ? "Key Collected" : "Key Not Collected";
-        font.draw(game.getSpriteBatch(), keyStatus, 10, Gdx.graphics.getHeight() - 40);
-
-        game.getSpriteBatch().end();
-    }
-
     // Add methods to update lives and key status based on game events
     public void decreaseLives() {
         livesRemaining--;
         if (livesRemaining <= 0) {
-            // Game over logic
-            game.goToMenu();
+            // Set game over state
+            gameOver = true;
         }
     }
 
@@ -318,6 +367,40 @@ public class GameScreen implements Screen {
         keyCollected = true;
         // Add logic for what happens when the key is collected
     }
+
+    // Check if the character collides with a specific tile
+    private boolean collidesWithCharacter(int tileX, int tileY) {
+        float characterX = camera.position.x - 96; // Adjusted for character size
+        float characterY = camera.position.y - 64; // Adjusted for character size
+
+        float tileCenterX = (tileX + 0.5f) * tileSize;
+        float tileCenterY = (tileY + 0.5f) * tileSize;
+
+        return Math.abs(characterX - tileCenterX) < tileSize / 2 &&
+                Math.abs(characterY - tileCenterY) < tileSize / 2;
+    }
+
+    private void setCharacterStartPosition() {
+        for (Map.Entry<String, Integer> entry : mazeMap.entrySet()) {
+            String[] coordinates = entry.getKey().split(",");
+            int x = Integer.parseInt(coordinates[0]);
+            int y = Integer.parseInt(coordinates[1]);
+            int value = entry.getValue();
+
+            if (value == 1) {
+                characterX = x * tileSize;
+                characterY = y * tileSize;
+                characterStartPositionSet = true;
+
+                // Add debugging prints
+                System.out.println("Character X: " + characterX);
+                System.out.println("Character Y: " + characterY);
+
+                return;
+            }
+        }
+    }
+
 
     private boolean isVerticalWall(int x, int y) {
         // Check if there's a wall to the north or south

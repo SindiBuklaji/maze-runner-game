@@ -5,19 +5,14 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.CpuSpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Stack;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
-import de.tum.cit.ase.maze.MazeRunnerGame;
-import games.spooky.gdx.nativefilechooser.NativeFileChooser;
 import games.spooky.gdx.nativefilechooser.NativeFileChooserCallback;
 import games.spooky.gdx.nativefilechooser.NativeFileChooserConfiguration;
 
@@ -68,8 +63,10 @@ public class MenuScreen implements Screen {
         // Create and add a button to go to the game screen
         TextButton selectLevelButton = new TextButton("Load Map", game.getSkin());
         TextButton exitButton = new TextButton("Exit", game.getSkin());
+
         table.add(selectLevelButton).width(300).row();
         table.add(exitButton).width(300).row();
+
 
         selectLevelButton.addListener(new ChangeListener() {
             @Override
@@ -91,6 +88,8 @@ public class MenuScreen implements Screen {
                 Gdx.app.exit();
             }
         });
+
+
     }
 
     // Method to open the file chooser
@@ -168,4 +167,5 @@ public class MenuScreen implements Screen {
     @Override
     public void hide() {
     }
+
 }
