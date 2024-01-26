@@ -2,6 +2,7 @@ package de.tum.cit.ase.maze;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -67,6 +68,8 @@ public class GameScreen implements Screen {
     // Declare variables to store the fire animation
     private Animation<TextureRegion> fireAnimation;
 
+    private final Preferences prefs;
+
 
     /**
      * Constructor for GameScreen. Sets up the camera and font.
@@ -77,6 +80,14 @@ public class GameScreen implements Screen {
 
     public GameScreen(MazeRunnerGame game, int level) throws IOException {
         this.game = game;
+
+        prefs = Gdx.app.getPreferences("GamePreferences");
+        loadGameState();
+
+        hud = new HUDScreen(game.getSkin());
+        // Draw the HUD
+        hud.draw();
+
 
         currentAnimation = game.getCharacterDownAnimation(); // Initialize with the default animation
 
@@ -148,23 +159,36 @@ public class GameScreen implements Screen {
         //Update the camera projection
         camera.update();
 
-        // Initialize character position if it hasn't been set yet
-        if (!characterStartPositionSet) {
-            setCharacterStartPosition();
-        }
-
         // Get the font from the game's skin
         font = game.getSkin().getFont("font");
-        hud = new HUDScreen(game.getSkin(), game.getHudSpriteBatch());
 
+        // Call setCharacterStartPosition after loading the maze
+        setCharacterStartPosition();
+
+    }
+
+    private void setCharacterStartPosition() {
+        for (Map.Entry<String, Integer> entry : mazeMap.entrySet()) {
+            String[] coordinates = entry.getKey().split(",");
+            int x = Integer.parseInt(coordinates[0]);
+            int y = Integer.parseInt(coordinates[1]);
+            int value = entry.getValue();
+
+            if (value == 1) {
+                characterX = x * tileSize;
+                characterY = y * tileSize;
+                characterStartPositionSet = true;
+                return;
+            }
+        }
     }
 
     // Screen interface methods with necessary functionality
     @Override
     public void render(float delta) {
 
-        float characterX = camera.position.x - 96; // Adjusted for character size
-        float characterY = camera.position.y - 64; // Adjusted for character size
+       /* float characterX = camera.position.x - 96; // Adjusted for character size
+        float characterY = camera.position.y - 64; // Adjusted for character size */
 
         // Update HUD information
         hud.update(livesRemaining, keyCollected);
@@ -186,7 +210,7 @@ public class GameScreen implements Screen {
 
         // Check for escape key press to go back to the menu
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            game.goToMenu();
+            game.setScreen(new PauseScreen(game));;
         }
 
 
@@ -322,14 +346,6 @@ public class GameScreen implements Screen {
 
         game.getSpriteBatch().end(); // Important to call this after drawing everything
 
-        // Set up and begin drawing with the sprite batch
-        game.getHudSpriteBatch().setProjectionMatrix(hud.getCamera().combined);
-        game.getHudSpriteBatch().begin();
-
-        // Draw the HUD at the top of the screen
-        hud.render(game.getHudSpriteBatch());
-        game.getHudSpriteBatch().end();
-
         camera.update();
 
     }
@@ -380,46 +396,48 @@ public class GameScreen implements Screen {
                 Math.abs(characterY - tileCenterY) < tileSize / 2;
     }
 
-    private void setCharacterStartPosition() {
-        for (Map.Entry<String, Integer> entry : mazeMap.entrySet()) {
-            String[] coordinates = entry.getKey().split(",");
-            int x = Integer.parseInt(coordinates[0]);
-            int y = Integer.parseInt(coordinates[1]);
-            int value = entry.getValue();
-
-            if (value == 1) {
-                characterX = x * tileSize;
-                characterY = y * tileSize;
-                characterStartPositionSet = true;
-
-                // Add debugging prints
-                System.out.println("Character X: " + characterX);
-                System.out.println("Character Y: " + characterY);
-
-                return;
-            }
-        }
-    }
-
 
     private boolean isVerticalWall(int x, int y) {
         // Check if there's a wall to the north or south
         //boolean hasWallAbove = mazeMap.containsKey((x) + "," + (y + 1)) && mazeMap.get((x) + "," + (y + 1)) == 0;
         boolean hasWallBelow = mazeMap.containsKey((x) + "," + (y - 1)) && mazeMap.get((x) + "," + (y - 1)) == 0;
 
-        return ( hasWallBelow) ;
+        return (hasWallBelow);
+    }
+
+    private void saveGameState() {
+        prefs.putFloat("characterX", characterX);
+        prefs.putFloat("characterY", characterY);
+        prefs.putInteger("livesRemaining", livesRemaining);
+        prefs.putBoolean("keyCollected", keyCollected);
+
+        // Add other fields as needed
+
+        prefs.flush(); // Save the preferences immediately
+    }
+
+    private void loadGameState() {
+        characterX = prefs.getFloat("characterX", characterX);
+        characterY = prefs.getFloat("characterY", characterY);
+        livesRemaining = prefs.getInteger("livesRemaining", livesRemaining);
+        keyCollected = prefs.getBoolean("keyCollected", keyCollected);
+
+        // Load other fields as needed
     }
 
     @Override
     public void resize(int width, int height) {
+        hud.resize(width, height);
     }
 
     @Override
     public void pause() {
+        saveGameState();
     }
 
     @Override
     public void resume() {
+        loadGameState();
     }
 
     @Override
@@ -433,6 +451,7 @@ public class GameScreen implements Screen {
 
     @Override
     public void dispose() {
+        hud.dispose();
     }
 
 }

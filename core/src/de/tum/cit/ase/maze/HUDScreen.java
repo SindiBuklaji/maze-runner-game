@@ -1,43 +1,55 @@
 package de.tum.cit.ase.maze;
+
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 public class HUDScreen {
 
-    private final Camera camera;
-    private final BitmapFont font;
-    private int livesRemaining;
-    private boolean keyCollected;
-    private final SpriteBatch hudSpriteBatch;
+    private final Stage stage;
+    private final Label livesLabel;
+    private final Label keyStatusLabel;
 
-    public HUDScreen (Skin skin, SpriteBatch hudSpriteBatch) {
-        this.camera = new OrthographicCamera();
-        this.font = skin.getFont("font");  // Adjust this based on your skin setup
-        this.hudSpriteBatch = hudSpriteBatch;
+    public HUDScreen(Skin skin) {
+        OrthographicCamera camera = new OrthographicCamera();
+        ScreenViewport viewport = new ScreenViewport(camera);
+        stage = new Stage(viewport);
+
+        Table table = new Table();
+        table.top().left();
+        table.setFillParent(true);
+
+        livesLabel = new Label("Lives: 0", skin);
+        keyStatusLabel = new Label("Key Not Collected", skin);
+
+        table.add(livesLabel).pad(10);
+        table.row();
+        table.add(keyStatusLabel).pad(10);
+
+        stage.addActor(table);
     }
 
     public void update(int livesRemaining, boolean keyCollected) {
-        this.livesRemaining = livesRemaining;
-        this.keyCollected = keyCollected;
+        livesLabel.setText("Lives: " + livesRemaining);
+        keyStatusLabel.setText(keyCollected ? "Key Collected" : "Key Not Collected");
     }
 
-    public Camera getCamera() {
-        return camera;
+    public void draw() {
+        stage.act(Math.min(stage.getWidth(), 1 / 30f));
+        stage.draw();
     }
 
-    public void render(SpriteBatch spriteBatch) {
-        // You can adjust the positioning based on your preference
-        float x = 10;
-        float y = camera.viewportHeight - 10;
+    public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
+    }
 
-        // Draw lives remaining
-        font.draw(spriteBatch, "Lives: " + livesRemaining, x, y);
-
-        // Draw key collected status
-        String keyStatus = keyCollected ? "Key Collected" : "Key Not Collected";
-        font.draw(spriteBatch, keyStatus, x, y - 20);
+    public void dispose() {
+        stage.dispose();
     }
 }
