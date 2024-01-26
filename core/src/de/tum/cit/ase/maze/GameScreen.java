@@ -305,15 +305,15 @@ public class GameScreen implements Screen {
             } else if (value == 3) {
                 game.getSpriteBatch().draw(fireRegion, x * tileSize, y * tileSize, tileSize, tileSize);
                 if (collidesWithCharacter(x, y)) {
-                    decreaseLives();
                     collisionOccurred = true; // Set collision flag to true
+                    decreaseLives();
                 }
                 // 4 == ghosts
             } else if (value == 4) {
                 game.getSpriteBatch().draw(ghostRegion, x * tileSize, y * tileSize, tileSize, tileSize);
                 if (collidesWithCharacter(x, y)) {
-                    decreaseLives();
                     collisionOccurred = true; // Set collision flag to true
+                    decreaseLives();
                 }
             } else if (value == 5) {
                 game.getSpriteBatch().draw(treasureRegion, x * tileSize, y * tileSize, tileSize, tileSize);
