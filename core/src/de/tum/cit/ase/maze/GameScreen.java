@@ -5,11 +5,13 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 
@@ -22,8 +24,6 @@ import java.util.*;
  * It handles the game logic and rendering of the game elements.
  */
 public class GameScreen implements Screen {
-
-
     private final MazeRunnerGame game;
     //bane final po nuk bani
     private final OrthographicCamera camera;
@@ -62,10 +62,6 @@ public class GameScreen implements Screen {
     // Declare variables to store the fire animation
     private Animation<TextureRegion> fireAnimation;
 
-    private PauseScreen pauseScreen;  // Add a member variable
-
-    private Screen WinScreen;
-
 
     /**
      * Constructor for GameScreen. Sets up the camera and font.
@@ -76,8 +72,6 @@ public class GameScreen implements Screen {
 
     public GameScreen(MazeRunnerGame game, int level) throws IOException {
         this.game = game;
-        pauseScreen = new PauseScreen(game, this);  // "this" refers to the current GameScreen instance
-
 
         hud = new HUDScreen(game.getSkin()); // Pass the camera to HUDScreen
 
@@ -158,7 +152,6 @@ public class GameScreen implements Screen {
 
         // Call setCharacterStartPosition after loading the maze
         setCharacterStartPosition();
-        // Initialize ghosts based on level properties
 
     }
 
@@ -183,19 +176,20 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
 
-        if (inCooldown) {
-            cooldownTimer -= delta;
+            if (inCooldown) {
+                cooldownTimer -= delta;
 
-            if (cooldownTimer <= 0) {
-                inCooldown = false;
+                if (cooldownTimer <= 0) {
+                    inCooldown = false;
+                }
             }
-        }
 
         game.isKeyCollected();
 
 
         // Check for escape key press to go back to the menu
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+            pause();
             game.setScreen(new PauseScreen(game, this));
         }
 
@@ -335,9 +329,43 @@ public class GameScreen implements Screen {
                 tileSize+40
         );
 
-
-
         game.getSpriteBatch().end(); // Important to call this after drawing everything
+
+        // Check if the player is in cooldown
+        if (inCooldown) {
+            cooldownTimer -= delta;
+            game.getSpriteBatch().begin();
+
+            // Calculate lerp factor based on cooldown timer
+            float lerpFactor = 1 - Math.max(0, cooldownTimer / COOLDOWN_DURATION);
+
+            // Set color with transparency using lerp
+            float targetAlpha = 0.5f; // Adjust the target alpha as needed
+            float currentAlpha = 1 - lerpFactor;
+            float lerpedAlpha = MathUtils.lerp(currentAlpha, targetAlpha, lerpFactor);
+
+            Color originalColor = game.getSpriteBatch().getColor().cpy();
+
+            game.getSpriteBatch().setColor(1, 1 - lerpedAlpha, 1 - lerpedAlpha, lerpedAlpha);
+
+            // Draw the player with the adjusted color
+            game.getSpriteBatch().draw(
+                    currentAnimation.getKeyFrame(sinusInput, true),
+                    characterX,
+                    characterY,
+                    tileSize + 10,
+                    tileSize + 40
+            );
+
+            game.getSpriteBatch().setColor(originalColor);
+
+
+            game.getSpriteBatch().end();
+
+            if (cooldownTimer <= 0) {
+                inCooldown = false;
+            }
+        }
 
         hud.draw();
         camera.update();
@@ -398,10 +426,12 @@ public class GameScreen implements Screen {
 
     @Override
     public void pause() {
+
     }
 
     @Override
     public void resume() {
+
     }
 
     @Override

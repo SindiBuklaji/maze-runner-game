@@ -43,7 +43,7 @@ public class PauseScreen implements Screen {
         table.add(new Label("You paused the game.", game.getSkin(), "title")).padBottom(80).row();
 
         // Create and add a button to go to the game screen
-        TextButton resumeButton = new TextButton("Resume", game.getSkin());
+        TextButton resumeButton = new TextButton("Continue", game.getSkin());
         TextButton selectLevelButton = new TextButton("Load Map", game.getSkin());
         TextButton exitButton = new TextButton("Exit", game.getSkin());
 
@@ -56,7 +56,7 @@ public class PauseScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 // Call the method to open the file chooser
-                game.resumeGame();
+                gameScreen.resume();
             }
         });
 

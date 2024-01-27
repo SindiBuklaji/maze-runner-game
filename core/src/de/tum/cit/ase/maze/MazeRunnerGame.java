@@ -224,10 +224,6 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
         this.currentLevel = level;
     }
 
-    public void resumeGame() {
-        setScreen(gameScreen);
-    }
-
     public SpriteBatch getHudSpriteBatch() {
         return hudSpriteBatch;
     }
