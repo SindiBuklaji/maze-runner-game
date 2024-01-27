@@ -2,6 +2,7 @@ package de.tum.cit.ase.maze;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -9,6 +10,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 import java.io.IOException;
@@ -29,28 +31,27 @@ public class GameScreen implements Screen {
 
     private float sinusInput = 0f;
     private Map<String, Integer> mazeMap;
-    private int tileSize = 78;
+    private int tileSize = 68;
 
-    private TextureRegion wallRegion, entryRegion, closedDoorRegion, openDoorRegion, fireRegion, ghostRegion, treasureRegion, opentreasureRegion, floorRegion;
+    private TextureRegion entryRegion, closedDoorRegion, openDoorRegion, fireRegion, ghostRegion, treasureRegion, opentreasureRegion, floorRegion;
 
     private TextureRegion verticalWallRegion;
     private TextureRegion horizontalWallRegion;
     private float characterX;
     private float characterY;
-
-    int entryX;
-    int entryY;
     private boolean collisionOccurred = false;
+
 
     int mazeWidth;
     int mazeHeight;
 
     int maxX;
     int maxY;
-
+    private int livesRemaining = 5; // Initial number of lives
     private float characterSpeed = 300f; // Adjust the speed as needed
-    private float collisionCooldown = 2f;
-    private final float cooldownDuration = 2f; // Set the cooldown duration in seconds
+    private boolean inCooldown = false;
+    private float cooldownTimer = 0f;
+    public static final float COOLDOWN_DURATION = 2f;
     private final HUDScreen hud;
 
     private boolean characterStartPositionSet = false;
@@ -61,8 +62,6 @@ public class GameScreen implements Screen {
     // Declare variables to store the fire animation
     private Animation<TextureRegion> fireAnimation;
 
-    private float collisionDelay = 2.0f; // Set the delay duration in seconds
-    private boolean collisionDelayActive = false;
     private PauseScreen pauseScreen;  // Add a member variable
 
     private Screen WinScreen;
@@ -78,6 +77,7 @@ public class GameScreen implements Screen {
     public GameScreen(MazeRunnerGame game, int level) throws IOException {
         this.game = game;
         pauseScreen = new PauseScreen(game, this);  // "this" refers to the current GameScreen instance
+
 
         hud = new HUDScreen(game.getSkin()); // Pass the camera to HUDScreen
 
@@ -95,7 +95,6 @@ public class GameScreen implements Screen {
         InputStream inputStream = fileHandle.read();
         Properties properties = new Properties();
 
-        Texture wallTexture = new Texture(Gdx.files.internal("basictiles.png"));
         Texture entryTexture = new Texture(Gdx.files.internal("basictiles.png"));
         Texture closedDoorTexture = new Texture(Gdx.files.internal("things.png"));
         Texture openDoorTexture = new Texture(Gdx.files.internal("things.png"));
@@ -110,7 +109,6 @@ public class GameScreen implements Screen {
 
 
         // Load your textures
-        wallRegion = new TextureRegion(wallTexture, 0, 0, 16, 16);
         entryRegion = new TextureRegion(entryTexture, 0, 128, 16, 16);
         closedDoorRegion = new TextureRegion(closedDoorTexture, 0, 32, 16, 16);
         openDoorRegion = new TextureRegion(openDoorTexture, 0, 0, 16, 16);
@@ -185,45 +183,20 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
 
-       /* float characterX = camera.position.x - 96; // Adjusted for character size
-        float characterY = camera.position.y - 64; // Adjusted for character size */
+        if (inCooldown) {
+            cooldownTimer -= delta;
 
-        // Decrease the collisionCooldown
-        collisionCooldown = Math.max(0f, collisionCooldown - delta);
+            if (cooldownTimer <= 0) {
+                inCooldown = false;
+            }
+        }
 
         game.isKeyCollected();
 
 
-        // Check if cooldown has elapsed and collision has occurred
-        if (collisionCooldown <= 0 && collisionOccurred) {
-            // Check if the collision delay is not active
-            if (!collisionDelayActive) {
-                // Set the collision delay as active
-                collisionDelayActive = true;
-                // Decrease the lives after the delay has elapsed
-                game.decreaseLives();
-            }
-        }
-
-        // Check if the collision delay is active
-        if (collisionDelayActive) {
-            // Decrease the collision delay
-            collisionDelay -= delta;
-            // Check if the delay has elapsed
-            if (collisionDelay <= 0) {
-                // Reset the collision flag and delay variables
-                collisionOccurred = false;
-                collisionDelayActive = false;
-                collisionDelay = 2.0f; // Reset the delay duration
-                // Reset the cooldown timer
-                collisionCooldown = cooldownDuration;
-            }
-        }
-
-
         // Check for escape key press to go back to the menu
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            game.setScreen(new PauseScreen(game, this));;
+            game.setScreen(new PauseScreen(game, this));
         }
 
 
@@ -321,22 +294,27 @@ public class GameScreen implements Screen {
                 TextureRegion fireFrame = game.getFireAnimation().getKeyFrame(sinusInput, true);
                 game.getSpriteBatch().draw(fireFrame, x*tileSize, y*tileSize, tileSize, tileSize);
                 if (collidesWithCharacter(x, y)) {
-                      game.decreaseLives();
+                    collisionOccurred = true;
+                      decreaseLives(delta);
+                      game.collisionSound();
                 }
 
                 // 4 == ghosts
             } else if (value == 4) {
                 game.getSpriteBatch().draw(ghostRegion, x * tileSize, y * tileSize, tileSize, tileSize);
-                // if (collidesWithCharacter(x, y)) {
-                 //   game.decreaseLives();
-                //}
+                 if (collidesWithCharacter(x, y)) {
+                     collisionOccurred = true;
+                     decreaseLives(delta);
+                     game.collisionSound();
+                }
 
                 // 5 = treasure (key)
             } else if (value == 5) {
                 //Check if the character collides with the key
-                if (collidesWithCharacter(x, y)) {
+                if (collidesWithCharacter(x, y) && Gdx.input.isKeyPressed(Input.Keys.SPACE) ) {
                     game.keyCollectionStatus();
                     game.getSpriteBatch().draw(opentreasureRegion, x * tileSize, y * tileSize, tileSize, tileSize);
+                    game.doorOpeningSound();
                 }
                 else if (game.isKeyCollected()==true) {
                     game.getSpriteBatch().draw(opentreasureRegion, x * tileSize, y * tileSize, tileSize, tileSize);
@@ -358,20 +336,6 @@ public class GameScreen implements Screen {
                 tileSize+40
         );
 
-        // Render game elements
-       /* if (!gameOver) {
-            // Render game elements as usual
-        }
-        else {
-            // Switch to game over screen
-            game.setScreen(new GameOverScreen(game));
-        }
-        if (!gameWon) {
-            // Render game elements as usual
-        } else {
-            // Switch to game over screen
-            game.setScreen(new WinScreen(game));
-        }*/
 
 
         game.getSpriteBatch().end(); // Important to call this after drawing everything
@@ -455,4 +419,17 @@ public class GameScreen implements Screen {
         hud.dispose();
     }
 
+    public void decreaseLives(float delta) {
+        if (!inCooldown && collisionOccurred) {
+            livesRemaining--;
+            inCooldown = true;
+            cooldownTimer = COOLDOWN_DURATION;
+        }
+
+        hud.update(livesRemaining);
+        if (livesRemaining <= 0) {
+            // Set game over state
+            game.setScreen(new GameOverScreen(game));
+        }
+    }
 }

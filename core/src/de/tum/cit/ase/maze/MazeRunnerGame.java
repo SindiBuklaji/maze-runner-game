@@ -14,6 +14,8 @@ import games.spooky.gdx.nativefilechooser.NativeFileChooser;
 
 import java.io.IOException;
 
+import static de.tum.cit.ase.maze.GameScreen.COOLDOWN_DURATION;
+
 /**
  * The MazeRunnerGame class represents the core of the Maze Runner game.
  * It manages the screens and global resources like SpriteBatch and Skin.
@@ -56,6 +58,10 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
     private int livesRemaining = 5;
     private Sound openDoorSound;
 
+    private Sound collisionSound;
+
+    private HUDScreen hud;
+
 
     /**
      * Constructor for MazeRunnerGame.
@@ -89,6 +95,7 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
         backgroundMusic.play(); */
 
         openDoorSound = Gdx.audio.newSound(Gdx.files.internal("door-opening.wav"));
+        collisionSound = Gdx.audio.newSound(Gdx.files.internal("collision-sound.wav"));
 
         goToMenu(); // Navigate to the menu screen
 
@@ -239,20 +246,17 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
     }
 
     // Add methods to update lives and key status based on game events
-    public void decreaseLives() {
-        livesRemaining--;
-        if (livesRemaining <= 0) {
-            // Set game over state
-            setScreen(new GameOverScreen(this));
-        }
-    }
 
     public boolean keyCollectionStatus() {
        return keyCollected = true;
     }
 
-    public void doorOpeningSoundPlay() {
+    public void doorOpeningSound() {
         openDoorSound.play();
+    }
+
+    public void collisionSound() {
+        collisionSound.play();
     }
 
 }
