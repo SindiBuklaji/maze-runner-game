@@ -61,9 +61,6 @@ public class GameScreen implements Screen {
 
     // Declare variables to store the fire animation
     private Animation<TextureRegion> fireAnimation;
-    boolean keyPressed = false; // Flag to check if any arrow key is pressed
-
-
 
     /**
      * Constructor for GameScreen. Sets up the camera and font.
