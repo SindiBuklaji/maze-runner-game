@@ -56,7 +56,9 @@ public class PauseScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 // Call the method to open the file chooser
-                gameScreen.resume();
+                game.setPaused(false);
+                Gdx.graphics.setContinuousRendering(true);
+                game.setScreen(level);
             }
         });
 

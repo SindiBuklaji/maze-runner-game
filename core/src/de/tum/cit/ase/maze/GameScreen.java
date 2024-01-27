@@ -179,55 +179,49 @@ public class GameScreen implements Screen {
 
         game.isKeyCollected();
 
+        if (!game.isPaused()) {
+            // Check for escape key press to go back to the menu
+            if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+                pause();
+                game.setScreen(new PauseScreen(game, this));
+            }
 
-        // Check for escape key press to go back to the menu
-        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            pause();
-            game.setScreen(new PauseScreen(game, this));
-        }
-
-        // Update character position based on arrow key inputs
-       else if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-            if (!checkCollision(characterX, characterY + characterSpeed * Gdx.graphics.getDeltaTime())) {
-            characterY += characterSpeed * Gdx.graphics.getDeltaTime();
-            currentAnimation = game.getCharacterUpAnimation();
+            // Update character position based on arrow key inputs
+            else if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+                if (!checkCollision(characterX, characterY + characterSpeed * Gdx.graphics.getDeltaTime())) {
+                    characterY += characterSpeed * Gdx.graphics.getDeltaTime();
+                    currentAnimation = game.getCharacterUpAnimation();
+                }
+            } else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+                if (!checkCollision(characterX, characterY - characterSpeed * Gdx.graphics.getDeltaTime())) {
+                    characterY -= characterSpeed * Gdx.graphics.getDeltaTime();
+                    currentAnimation = game.getCharacterDownAnimation();
+                }
+            } else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+                if (!checkCollision(characterX + characterSpeed * Gdx.graphics.getDeltaTime(), characterY)) {
+                    characterX += characterSpeed * Gdx.graphics.getDeltaTime();
+                    currentAnimation = game.getCharacterRightAnimation();
+                }
+            } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+                if (!checkCollision(characterX - characterSpeed * Gdx.graphics.getDeltaTime(), characterY)) {
+                    characterX -= characterSpeed * Gdx.graphics.getDeltaTime();
+                    currentAnimation = game.getCharacterLeftAnimation();
+                }
+            } else {
+                if (currentAnimation == game.getCharacterDownAnimation()) {
+                    currentAnimation = game.getCharacterStillDownAnimation();
+                }
+                if (currentAnimation == game.getCharacterUpAnimation()) {
+                    currentAnimation = game.getCharacterStillUpAnimation();
+                }
+                if (currentAnimation == game.getCharacterLeftAnimation()) {
+                    currentAnimation = game.getCharacterStillLeftAnimation();
+                }
+                if (currentAnimation == game.getCharacterRightAnimation()) {
+                    currentAnimation = game.getCharacterStillRightAnimation();
+                }
             }
         }
-
-       else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-            if (!checkCollision(characterX, characterY - characterSpeed * Gdx.graphics.getDeltaTime())) {
-            characterY -= characterSpeed * Gdx.graphics.getDeltaTime();
-            currentAnimation = game.getCharacterDownAnimation();
-            }
-        }
-
-       else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            if (!checkCollision(characterX + characterSpeed * Gdx.graphics.getDeltaTime(), characterY)) {
-                characterX += characterSpeed * Gdx.graphics.getDeltaTime();
-                currentAnimation = game.getCharacterRightAnimation();
-            }
-        }
-
-       else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            if (!checkCollision(characterX - characterSpeed * Gdx.graphics.getDeltaTime(), characterY)) {
-            characterX -= characterSpeed * Gdx.graphics.getDeltaTime();
-            currentAnimation = game.getCharacterLeftAnimation();
-            }
-        }
-       else {
-           if(currentAnimation == game.getCharacterDownAnimation()) {
-               currentAnimation = game.getCharacterStillDownAnimation();
-           }
-           if(currentAnimation == game.getCharacterUpAnimation()) {
-               currentAnimation = game.getCharacterStillUpAnimation();
-           }
-           if(currentAnimation == game.getCharacterLeftAnimation()) {
-               currentAnimation = game.getCharacterStillLeftAnimation();
-           }
-           if (currentAnimation == game.getCharacterRightAnimation()) {
-               currentAnimation = game.getCharacterStillRightAnimation();
-           }
-       }
 
 
         // Set the new position of the character
@@ -377,6 +371,10 @@ public class GameScreen implements Screen {
 
         hud.draw();
         camera.update();
+
+        if (!game.isPaused()) {
+            Gdx.graphics.requestRendering();
+        }
 
     }
 

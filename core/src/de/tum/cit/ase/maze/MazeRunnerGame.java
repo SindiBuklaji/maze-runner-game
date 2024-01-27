@@ -44,8 +44,8 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
     private int livesRemaining = 5;
     private Sound openDoorSound;
     private Sound collisionSound;
-
     private Sound gameWinSound;
+    private boolean paused = false;
 
     /**
      * Constructor for MazeRunnerGame.
@@ -63,6 +63,9 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
      */
     @Override
     public void create() {
+        Gdx.graphics.setContinuousRendering(true);
+        Gdx.graphics.requestRendering();
+
         spriteBatch = new SpriteBatch(); // Create SpriteBatch
         skin = new Skin(Gdx.files.internal("craft/craftacular-ui.json")); // Load UI skin
         this.loadCharacterAnimation(); // Load character animation
@@ -281,5 +284,12 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
 
     public Animation<TextureRegion> getGhostAnimation() {
         return ghostAnimation;
+    }
+
+    public boolean isPaused() {
+        return paused;
+    }
+    public void setPaused(boolean paused) {
+        this.paused = paused;
     }
 }
