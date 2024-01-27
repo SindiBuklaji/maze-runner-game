@@ -61,6 +61,8 @@ public class GameScreen implements Screen {
 
     // Declare variables to store the fire animation
     private Animation<TextureRegion> fireAnimation;
+    boolean keyPressed = false; // Flag to check if any arrow key is pressed
+
 
 
     /**
@@ -75,7 +77,7 @@ public class GameScreen implements Screen {
 
         hud = new HUDScreen(game.getSkin()); // Pass the camera to HUDScreen
 
-        currentAnimation = game.getCharacterDownAnimation(); // Initialize with the default animation
+        currentAnimation = game.getCharacterStillDownAnimation(); // Initialize with the default animation
 
         // Initialize the fire animation
         fireAnimation = game.getFireAnimation();
@@ -193,35 +195,48 @@ public class GameScreen implements Screen {
             game.setScreen(new PauseScreen(game, this));
         }
 
-
         // Update character position based on arrow key inputs
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+       else if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             if (!checkCollision(characterX, characterY + characterSpeed * Gdx.graphics.getDeltaTime())) {
             characterY += characterSpeed * Gdx.graphics.getDeltaTime();
             currentAnimation = game.getCharacterUpAnimation();
             }
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+       else if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
             if (!checkCollision(characterX, characterY - characterSpeed * Gdx.graphics.getDeltaTime())) {
             characterY -= characterSpeed * Gdx.graphics.getDeltaTime();
             currentAnimation = game.getCharacterDownAnimation();
             }
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+       else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             if (!checkCollision(characterX + characterSpeed * Gdx.graphics.getDeltaTime(), characterY)) {
                 characterX += characterSpeed * Gdx.graphics.getDeltaTime();
                 currentAnimation = game.getCharacterRightAnimation();
             }
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+       else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             if (!checkCollision(characterX - characterSpeed * Gdx.graphics.getDeltaTime(), characterY)) {
             characterX -= characterSpeed * Gdx.graphics.getDeltaTime();
             currentAnimation = game.getCharacterLeftAnimation();
             }
         }
+       else {
+           if(currentAnimation == game.getCharacterDownAnimation()) {
+               currentAnimation = game.getCharacterStillDownAnimation();
+           }
+           if(currentAnimation == game.getCharacterUpAnimation()) {
+               currentAnimation = game.getCharacterStillUpAnimation();
+           }
+           if(currentAnimation == game.getCharacterLeftAnimation()) {
+               currentAnimation = game.getCharacterStillLeftAnimation();
+           }
+           if (currentAnimation == game.getCharacterRightAnimation()) {
+               currentAnimation = game.getCharacterStillRightAnimation();
+           }
+       }
 
 
         // Set the new position of the character
@@ -328,6 +343,7 @@ public class GameScreen implements Screen {
                 tileSize+10,
                 tileSize+40
         );
+
 
         game.getSpriteBatch().end(); // Important to call this after drawing everything
 
@@ -463,4 +479,5 @@ public class GameScreen implements Screen {
         }
 
     }
+
 }

@@ -34,10 +34,8 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
     private Skin skin;
 
     // Character animation downwards
-    private Animation<TextureRegion> characterDownAnimation;
-    private Animation<TextureRegion> characterUpAnimation;
-    private Animation<TextureRegion> characterLeftAnimation;
-    private Animation<TextureRegion> characterRightAnimation;
+    private Animation<TextureRegion> characterDownAnimation, characterUpAnimation, characterLeftAnimation, characterRightAnimation;
+    private Animation<TextureRegion> characterStillDownAnimation, characterStillUpAnimation, characterStillLeftAnimation, characterStillRightAnimation;
     private Animation<TextureRegion> fireAnimation;
 
     // Texture for the player in different positions
@@ -70,8 +68,6 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
      *
      * @param fileChooser The file chooser for the game, typically used in desktop environment.
      */
-    //for movement
-    public boolean upPressed, downPressed, leftPressed, rightPressed, enterPressed, shotKeyPressed, spacePressed;
 
     public MazeRunnerGame(NativeFileChooser fileChooser) {
         super();
@@ -147,6 +143,10 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
         Array<TextureRegion> walkUpFrames = new Array<>(TextureRegion.class);
         Array<TextureRegion> walkLeftFrames = new Array<>(TextureRegion.class);
         Array<TextureRegion> walkRightFrames = new Array<>(TextureRegion.class);
+        Array<TextureRegion> stillDownFrames = new Array<>(TextureRegion.class);
+        Array<TextureRegion> stillUpFrames = new Array<>(TextureRegion.class);
+        Array<TextureRegion> stillRightFrames = new Array<>(TextureRegion.class);
+        Array<TextureRegion> stillLeftFrames = new Array<>(TextureRegion.class);
 
         // Add all frames to the animation
         for (int col = 0; col < animationFrames; col++) {
@@ -161,11 +161,27 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
         for (int col = 0; col < animationFrames; col++) {
             walkRightFrames.add(new TextureRegion(walkSheet, col * frameWidth, 32, frameWidth, frameHeight));
         }
+        for (int col = 6; col < 8; col++) {
+            stillDownFrames.add(new TextureRegion(walkSheet, col * frameWidth, 0, frameWidth, frameHeight));
+        }
+        for (int col = 6; col < 8; col++) {
+            stillUpFrames.add(new TextureRegion(walkSheet, col * frameWidth, 64, frameWidth, frameHeight));
+        }
+        for (int col = 6; col < 8; col++) {
+            stillLeftFrames.add(new TextureRegion(walkSheet, col * frameWidth, 96, frameWidth, frameHeight));
+        }
+        for (int col = 6; col < 8; col++) {
+            stillRightFrames.add(new TextureRegion(walkSheet, col * frameWidth, 32, frameWidth, frameHeight));
+        }
 
         characterDownAnimation = new Animation<>(0.1f, walkDownFrames);
         characterUpAnimation = new Animation<>(0.1f, walkUpFrames);
         characterLeftAnimation = new Animation<>(0.1f, walkLeftFrames);
         characterRightAnimation = new Animation<>(0.1f, walkRightFrames);
+        characterStillDownAnimation = new Animation<>(2f, stillDownFrames);
+        characterStillUpAnimation = new Animation<>(2f, stillUpFrames);
+        characterStillRightAnimation = new Animation<>(2f, stillRightFrames);
+        characterStillLeftAnimation = new Animation<>(2f, stillLeftFrames);
 
     }
 
@@ -260,4 +276,19 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
 
     public void gameWinSound() {gameWinSound.play();}
 
+    public Animation<TextureRegion> getCharacterStillDownAnimation() {
+        return characterStillDownAnimation;
+    }
+
+    public Animation<TextureRegion> getCharacterStillUpAnimation() {
+        return characterStillUpAnimation;
+    }
+
+    public Animation<TextureRegion> getCharacterStillLeftAnimation() {
+        return characterStillLeftAnimation;
+    }
+
+    public Animation<TextureRegion> getCharacterStillRightAnimation() {
+        return characterStillRightAnimation;
+    }
 }
