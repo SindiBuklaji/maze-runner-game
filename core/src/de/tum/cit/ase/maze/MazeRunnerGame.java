@@ -90,9 +90,9 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
 
         // Play some background music
         // Background sound
-       /* Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("background.mp3"));
+        Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("background2.mp3"));
         backgroundMusic.setLooping(true);
-        backgroundMusic.play(); */
+        backgroundMusic.play();
 
         openDoorSound = Gdx.audio.newSound(Gdx.files.internal("door-opening.wav"));
         collisionSound = Gdx.audio.newSound(Gdx.files.internal("collision-sound.wav"));
