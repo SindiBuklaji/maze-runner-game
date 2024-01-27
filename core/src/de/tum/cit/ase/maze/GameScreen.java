@@ -344,6 +344,7 @@ public class GameScreen implements Screen {
                 else {
                     game.getSpriteBatch().draw(treasureRegion, x * tileSize, y * tileSize, tileSize, tileSize);
                 }
+
             }
         }
 

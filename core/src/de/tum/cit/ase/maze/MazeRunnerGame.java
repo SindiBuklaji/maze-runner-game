@@ -54,6 +54,7 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
 
     private boolean keyCollected = false;
     private int livesRemaining = 5;
+    private Sound openDoorSound;
 
 
     /**
@@ -83,10 +84,11 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
 
         // Play some background music
         // Background sound
-     /*   Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("background.mp3"));
+       /* Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("background.mp3"));
         backgroundMusic.setLooping(true);
-        backgroundMusic.play();
-        */
+        backgroundMusic.play(); */
+
+        openDoorSound = Gdx.audio.newSound(Gdx.files.internal("door-opening.wav"));
 
         goToMenu(); // Navigate to the menu screen
 
@@ -247,6 +249,10 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
 
     public boolean keyCollectionStatus() {
        return keyCollected = true;
+    }
+
+    public void doorOpeningSoundPlay() {
+        openDoorSound.play();
     }
 
 }
