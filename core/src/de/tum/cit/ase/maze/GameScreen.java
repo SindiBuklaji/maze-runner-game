@@ -41,7 +41,6 @@ public class GameScreen implements Screen {
     private float characterY;
     private boolean collisionOccurred = false;
 
-
     int mazeWidth;
     int mazeHeight;
 
@@ -134,7 +133,6 @@ public class GameScreen implements Screen {
         this.camera = new OrthographicCamera();
         camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         camera.zoom = 1.0f;
-        //this.viewport = new ScreenViewport(camera);
 
         //Set the initial position of the camera to the center of the maze
         camera.position.set(mazeWidth * 0.5f, mazeHeight * 0.5f, 0);
@@ -319,7 +317,7 @@ public class GameScreen implements Screen {
                     game.getSpriteBatch().draw(opentreasureRegion, x * tileSize, y * tileSize, tileSize, tileSize);
                     game.doorOpeningSound();
                 }
-                else if (game.isKeyCollected()==true) {
+                else if (game.isKeyCollected()) {
                     game.getSpriteBatch().draw(opentreasureRegion, x * tileSize, y * tileSize, tileSize, tileSize);
                 }
                 else {
@@ -369,7 +367,6 @@ public class GameScreen implements Screen {
             );
 
             game.getSpriteBatch().setColor(originalColor);
-
 
             game.getSpriteBatch().end();
 

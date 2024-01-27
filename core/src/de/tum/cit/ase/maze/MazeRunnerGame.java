@@ -38,31 +38,14 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
     private Animation<TextureRegion> characterStillDownAnimation, characterStillUpAnimation, characterStillLeftAnimation, characterStillRightAnimation;
     private Animation<TextureRegion> fireAnimation;
     private Animation<TextureRegion> ghostAnimation;
-
-    // Texture for the player in different positions
-
-    private int lives = 5; // Set the initial number of lives
-
-
-    // Maze array
-    int[][] maze;
-
     public NativeFileChooser nativeFileChooser;
-
-    private Vector2 characterPosition;
-
     private int currentLevel = 1; // Default level
-
     private boolean keyCollected = false;
     private int livesRemaining = 5;
     private Sound openDoorSound;
-
     private Sound collisionSound;
 
     private Sound gameWinSound;
-
-    private HUDScreen hud;
-
 
     /**
      * Constructor for MazeRunnerGame.
@@ -221,7 +204,6 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
 
     }
 
-
     /**
      * Cleans up resources when the game is disposed.
      */
@@ -258,14 +240,6 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
         return spriteBatch;
     }
 
-    public void setCurrentLevel(int level) {
-        this.currentLevel = level;
-    }
-
-    public SpriteBatch getHudSpriteBatch() {
-        return hudSpriteBatch;
-    }
-
     public Animation<TextureRegion> getFireAnimation() {
         return fireAnimation;
     }
@@ -274,12 +248,6 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
     public boolean isKeyCollected() {
         return keyCollected;
     }
-
-    public int getLivesRemaining() {
-        return livesRemaining;
-    }
-
-    // Add methods to update lives and key status based on game events
 
     public boolean keyCollectionStatus() {
        return keyCollected = true;
