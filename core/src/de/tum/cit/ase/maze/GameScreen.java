@@ -305,7 +305,6 @@ public class GameScreen implements Screen {
                  if (collidesWithCharacter(x, y)) {
                      collisionOccurred = true;
                      decreaseLives(delta);
-                     game.collisionSound();
                 }
 
                 // 5 = treasure (key)
@@ -431,5 +430,6 @@ public class GameScreen implements Screen {
             // Set game over state
             game.setScreen(new GameOverScreen(game));
         }
+        game.collisionSound();
     }
 }
