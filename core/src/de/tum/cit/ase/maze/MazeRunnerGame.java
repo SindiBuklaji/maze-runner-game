@@ -96,7 +96,7 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
         backgroundMusic.setLooping(true);
         backgroundMusic.play();
 
-        openDoorSound = Gdx.audio.newSound(Gdx.files.internal("door-opening.wav"));
+        openDoorSound = Gdx.audio.newSound(Gdx.files.internal("door-opening2.mp3"));
         collisionSound = Gdx.audio.newSound(Gdx.files.internal("collision-sound.wav"));
         gameWinSound = Gdx.audio.newSound(Gdx.files.internal("game-win.wav"));
 
