@@ -42,9 +42,7 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
     private int currentLevel = 1; // Default level
     private boolean keyCollected = false;
     private int livesRemaining = 5;
-    private Sound openDoorSound;
-    private Sound collisionSound;
-    private Sound gameWinSound;
+    private Sound openDoorSound, collisionSound, gameWinSound, gameOverSound;
     private boolean paused = false;
 
     /**
@@ -83,6 +81,7 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
         openDoorSound = Gdx.audio.newSound(Gdx.files.internal("door-opening2.mp3"));
         collisionSound = Gdx.audio.newSound(Gdx.files.internal("collision-sound.wav"));
         gameWinSound = Gdx.audio.newSound(Gdx.files.internal("game-win.wav"));
+        gameOverSound = Gdx.audio.newSound(Gdx.files.internal("game-over.wav"));
 
         goToMenu(); // Navigate to the menu screen
 
@@ -265,6 +264,8 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
     }
 
     public void gameWinSound() {gameWinSound.play();}
+
+    public void gameOverSound() {gameOverSound.play();}
 
     public Animation<TextureRegion> getCharacterStillDownAnimation() {
         return characterStillDownAnimation;

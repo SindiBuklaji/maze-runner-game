@@ -466,6 +466,7 @@ public class GameScreen implements Screen {
         if (livesRemaining <= 0) {
             // Set game over state
             game.setScreen(new GameOverScreen(game));
+            game.gameOverSound();
         }
 
     }
