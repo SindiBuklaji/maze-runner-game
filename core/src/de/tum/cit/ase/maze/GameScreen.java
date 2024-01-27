@@ -33,7 +33,7 @@ public class GameScreen implements Screen {
     private Map<String, Integer> mazeMap;
     private int tileSize = 68;
 
-    private TextureRegion entryRegion, closedDoorRegion, openDoorRegion, fireRegion, ghostRegion, treasureRegion, opentreasureRegion, floorRegion;
+    private TextureRegion entryRegion, closedDoorRegion, openDoorRegion, treasureRegion, opentreasureRegion, floorRegion;
 
     private TextureRegion verticalWallRegion;
     private TextureRegion horizontalWallRegion;
@@ -91,8 +91,6 @@ public class GameScreen implements Screen {
         Texture entryTexture = new Texture(Gdx.files.internal("basictiles.png"));
         Texture closedDoorTexture = new Texture(Gdx.files.internal("things.png"));
         Texture openDoorTexture = new Texture(Gdx.files.internal("things.png"));
-        Texture fireTexture = new Texture(Gdx.files.internal("objects.png"));
-        Texture ghostTexture = new Texture(Gdx.files.internal("mobs.png"));
         Texture treasureTexture = new Texture(Gdx.files.internal("things.png"));
         Texture opentreasureTexture = new Texture(Gdx.files.internal("things.png"));
         Texture floorTexture = new Texture(Gdx.files.internal("basictiles.png"));
@@ -105,8 +103,6 @@ public class GameScreen implements Screen {
         entryRegion = new TextureRegion(entryTexture, 0, 128, 16, 16);
         closedDoorRegion = new TextureRegion(closedDoorTexture, 0, 32, 16, 16);
         openDoorRegion = new TextureRegion(openDoorTexture, 0, 0, 16, 16);
-        fireRegion = new TextureRegion(fireTexture, 48, 32, 16, 16);
-        ghostRegion = new TextureRegion(ghostTexture, 96, 64, 16, 16);
         treasureRegion = new TextureRegion(treasureTexture, 64, 64, 16, 16);
         opentreasureRegion = new TextureRegion(opentreasureTexture, 48, 64, 16, 16);
         floorRegion = new TextureRegion(floorTexture, 0, 128, 16, 16);
@@ -307,8 +303,10 @@ public class GameScreen implements Screen {
 
                 // 4 == ghosts
             } else if (value == 4) {
-                game.getSpriteBatch().draw(ghostRegion, x * tileSize, y * tileSize, tileSize, tileSize);
-                 if (collidesWithCharacter(x, y)) {
+                //game.getSpriteBatch().draw(ghostRegion, x * tileSize, y * tileSize, tileSize, tileSize);
+                TextureRegion ghostFrame = game.getGhostAnimation().getKeyFrame(sinusInput, true);
+                game.getSpriteBatch().draw(ghostFrame, x*tileSize, y*tileSize, tileSize, tileSize);
+                if (collidesWithCharacter(x, y)) {
                      collisionOccurred = true;
                      decreaseLives(delta);
                 }

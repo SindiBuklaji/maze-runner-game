@@ -37,6 +37,7 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
     private Animation<TextureRegion> characterDownAnimation, characterUpAnimation, characterLeftAnimation, characterRightAnimation;
     private Animation<TextureRegion> characterStillDownAnimation, characterStillUpAnimation, characterStillLeftAnimation, characterStillRightAnimation;
     private Animation<TextureRegion> fireAnimation;
+    private Animation<TextureRegion> ghostAnimation;
 
     // Texture for the player in different positions
 
@@ -83,6 +84,7 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
         skin = new Skin(Gdx.files.internal("craft/craftacular-ui.json")); // Load UI skin
         this.loadCharacterAnimation(); // Load character animation
         this.loadFireAnimation(); // Load fire animation
+        this.loadGhostAnimation(); // Load ghost animation
 
         hudSpriteBatch = new SpriteBatch();
 
@@ -202,6 +204,23 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
 
     }
 
+    public void loadGhostAnimation() {
+        Texture walkSheet = new Texture(Gdx.files.internal("mobs.png"));
+
+        int animationFrames = 9;
+        int frameWidth = 16;
+        int frameHeight = 16;
+
+        Array<TextureRegion> walkGhostFrames = new Array<>(TextureRegion.class);
+
+        for (int col = 6; col < animationFrames; col++) {
+            walkGhostFrames.add(new TextureRegion(walkSheet, col * frameWidth, 64, frameWidth, frameHeight));
+        }
+
+        ghostAnimation = new Animation<>(0.3f, walkGhostFrames);
+
+    }
+
 
     /**
      * Cleans up resources when the game is disposed.
@@ -290,5 +309,9 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
 
     public Animation<TextureRegion> getCharacterStillRightAnimation() {
         return characterStillRightAnimation;
+    }
+
+    public Animation<TextureRegion> getGhostAnimation() {
+        return ghostAnimation;
     }
 }
