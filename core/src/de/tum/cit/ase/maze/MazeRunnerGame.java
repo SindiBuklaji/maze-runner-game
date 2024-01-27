@@ -60,6 +60,8 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
 
     private Sound collisionSound;
 
+    private Sound gameWinSound;
+
     private HUDScreen hud;
 
 
@@ -96,6 +98,7 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
 
         openDoorSound = Gdx.audio.newSound(Gdx.files.internal("door-opening.wav"));
         collisionSound = Gdx.audio.newSound(Gdx.files.internal("collision-sound.wav"));
+        gameWinSound = Gdx.audio.newSound(Gdx.files.internal("game-win.wav"));
 
         goToMenu(); // Navigate to the menu screen
 
@@ -254,5 +257,7 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
     public void collisionSound() {
         collisionSound.play();
     }
+
+    public void gameWinSound() {gameWinSound.play();}
 
 }

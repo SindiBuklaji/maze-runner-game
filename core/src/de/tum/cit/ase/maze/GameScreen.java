@@ -281,6 +281,7 @@ public class GameScreen implements Screen {
 
                 if (collidesWithCharacter(x,y) && game.isKeyCollected()) {
                         game.setScreen(new WinScreen(game));
+                        game.gameWinSound();
                 }
 
                 // 3 == fire
@@ -290,7 +291,6 @@ public class GameScreen implements Screen {
                 if (collidesWithCharacter(x, y)) {
                     collisionOccurred = true;
                       decreaseLives(delta);
-                      game.collisionSound();
                 }
 
                 // 4 == ghosts
@@ -453,6 +453,7 @@ public class GameScreen implements Screen {
             livesRemaining--;
             inCooldown = true;
             cooldownTimer = COOLDOWN_DURATION;
+            game.collisionSound();
         }
 
         hud.update(livesRemaining);
@@ -460,6 +461,6 @@ public class GameScreen implements Screen {
             // Set game over state
             game.setScreen(new GameOverScreen(game));
         }
-        game.collisionSound();
+
     }
 }
