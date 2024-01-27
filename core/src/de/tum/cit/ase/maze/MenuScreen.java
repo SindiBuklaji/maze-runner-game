@@ -71,6 +71,7 @@ public class MenuScreen implements Screen {
         selectLevelButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
+                game.resetGameState();
                 // Call the method to open the file chooser
                 selectedLevel = openFileChooser();
                 try {

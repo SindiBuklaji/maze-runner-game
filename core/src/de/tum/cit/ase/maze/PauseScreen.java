@@ -1,7 +1,6 @@
 package de.tum.cit.ase.maze;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
@@ -26,9 +25,9 @@ public class PauseScreen implements Screen {
 
     private int selectedLevel; // Store the selected file handle
 
-    public PauseScreen(MazeRunnerGame game) {
+    public PauseScreen(MazeRunnerGame game, GameScreen level) {
         this.mazeRunnerGame = game;
-        this.gameScreen = gameScreen;  // Initialize the gameScreen field
+        this.gameScreen = level;  // Initialize the gameScreen field
 
         var camera = new OrthographicCamera();
         camera.zoom = 1.5f; // Set camera zoom for a closer view
@@ -41,7 +40,7 @@ public class PauseScreen implements Screen {
         stage.addActor(table); // Add the table to the stage
 
         // Add a label as a title
-        table.add(new Label("Maze Runner Game!", game.getSkin(), "title")).padBottom(80).row();
+        table.add(new Label("You paused the game.", game.getSkin(), "title")).padBottom(80).row();
 
         // Create and add a button to go to the game screen
         TextButton resumeButton = new TextButton("Resume", game.getSkin());
@@ -53,6 +52,13 @@ public class PauseScreen implements Screen {
         table.add(selectLevelButton).width(300).row();
         table.add(exitButton).width(300).row();
 
+        resumeButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                // Call the method to open the file chooser
+                game.resumeGame();
+            }
+        });
 
         selectLevelButton.addListener(new ChangeListener() {
             @Override
@@ -72,14 +78,6 @@ public class PauseScreen implements Screen {
             public void changed(ChangeEvent event, Actor actor) {
                 // Call the method to open the file chooser
                 Gdx.app.exit();
-            }
-        });
-
-        resumeButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                // Call the method to open the file chooser
-                mazeRunnerGame.setScreen(gameScreen);
             }
         });
 
@@ -127,7 +125,7 @@ public class PauseScreen implements Screen {
 
     @Override
     public void show() {
-
+        Gdx.input.setInputProcessor(stage);
     }
 
     @Override
@@ -156,6 +154,7 @@ public class PauseScreen implements Screen {
 
     @Override
     public void dispose() {
+        stage.dispose();
         // Dispose of any resources when the screen is no longer needed
     }
 }

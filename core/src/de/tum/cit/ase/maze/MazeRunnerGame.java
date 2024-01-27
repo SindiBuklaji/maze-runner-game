@@ -2,6 +2,7 @@ package de.tum.cit.ase.maze;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -51,6 +52,8 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
 
     private int currentLevel = 1; // Default level
 
+    private boolean keyCollected = false;
+    private int livesRemaining = 5;
 
 
     /**
@@ -74,6 +77,7 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
         spriteBatch = new SpriteBatch(); // Create SpriteBatch
         skin = new Skin(Gdx.files.internal("craft/craftacular-ui.json")); // Load UI skin
         this.loadCharacterAnimation(); // Load character animation
+        this.loadFireAnimation(); // Load fire animation
 
         hudSpriteBatch = new SpriteBatch();
 
@@ -82,9 +86,7 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
      /*   Music backgroundMusic = Gdx.audio.newMusic(Gdx.files.internal("background.mp3"));
         backgroundMusic.setLooping(true);
         backgroundMusic.play();
-*/
-        // Initial position
-        characterPosition = new Vector2(100, 100);
+        */
 
         goToMenu(); // Navigate to the menu screen
 
@@ -110,6 +112,12 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
             menuScreen.dispose(); // Dispose the menu screen if it exists
             menuScreen = null;
         }
+    }
+
+    // Add a method to reset the game state
+    public void resetGameState() {
+        keyCollected = false;
+        livesRemaining = 5; // You can set the initial number of lives as needed
     }
 
     /**
@@ -152,17 +160,17 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
     public void loadFireAnimation() {
         Texture walkSheet = new Texture(Gdx.files.internal("objects.png"));
 
-        int animationFrames = 7;
+        int animationFrames = 5;
         int frameWidth = 16;
-        int frameHeight = 32;
+        int frameHeight = 16;
 
         Array<TextureRegion> walkFireFrames = new Array<>(TextureRegion.class);
 
         for (int col = 0; col < animationFrames; col++) {
-            walkFireFrames.add(new TextureRegion(walkSheet, col * frameWidth+64, 64, frameWidth, frameHeight));
+            walkFireFrames.add(new TextureRegion(walkSheet, col * frameWidth + 64, 48, frameWidth, frameHeight));
         }
 
-        fireAnimation =  new Animation<>(0.1f, walkFireFrames);
+        fireAnimation = new Animation<>(0.1f, walkFireFrames);
 
     }
 
@@ -187,11 +195,17 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
         return characterDownAnimation;
     }
 
-    public Animation<TextureRegion> getCharacterUpAnimation() { return characterUpAnimation; }
+    public Animation<TextureRegion> getCharacterUpAnimation() {
+        return characterUpAnimation;
+    }
 
-    public Animation<TextureRegion> getCharacterLeftAnimation() { return characterLeftAnimation; }
+    public Animation<TextureRegion> getCharacterLeftAnimation() {
+        return characterLeftAnimation;
+    }
 
-    public Animation<TextureRegion> getCharacterRightAnimation() { return characterRightAnimation; }
+    public Animation<TextureRegion> getCharacterRightAnimation() {
+        return characterRightAnimation;
+    }
 
     public SpriteBatch getSpriteBatch() {
         return spriteBatch;
@@ -212,4 +226,27 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
     public Animation<TextureRegion> getFireAnimation() {
         return fireAnimation;
     }
+
+    // Add getters for game state variables if needed
+    public boolean isKeyCollected() {
+        return keyCollected;
+    }
+
+    public int getLivesRemaining() {
+        return livesRemaining;
+    }
+
+    // Add methods to update lives and key status based on game events
+    public void decreaseLives() {
+        livesRemaining--;
+        if (livesRemaining <= 0) {
+            // Set game over state
+            setScreen(new GameOverScreen(this));
+        }
+    }
+
+    public boolean keyCollectionStatus() {
+       return keyCollected = true;
+    }
+
 }
