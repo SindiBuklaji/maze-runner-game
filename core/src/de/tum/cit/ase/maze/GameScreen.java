@@ -313,6 +313,7 @@ public class GameScreen implements Screen {
                 }
                 else if (game.isKeyCollected()) {
                     game.getSpriteBatch().draw(opentreasureRegion, x * tileSize, y * tileSize, tileSize, tileSize);
+                    hud.updateKeyStatus(game.isKeyCollected());
                 }
                 else {
                     game.getSpriteBatch().draw(treasureRegion, x * tileSize, y * tileSize, tileSize, tileSize);

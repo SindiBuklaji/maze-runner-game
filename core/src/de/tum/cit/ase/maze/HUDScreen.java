@@ -12,10 +12,9 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 public class HUDScreen {
 
     private final Stage stage;
-    // private Image heartImage;
-
     private Image[] heartImages = new Image[5];
 
+    private Label keyStatusLabel;
 
     public HUDScreen(Skin skin) {
         OrthographicCamera hudCamera = new OrthographicCamera();
@@ -39,13 +38,26 @@ public class HUDScreen {
 
         table.row();
 
+        // Create a label for key status
+        keyStatusLabel = new Label("Lever: Not activated", skin);
+        keyStatusLabel.setFontScale(1); // Adjust the font size as needed
+
+        // Add the key status label to the table
+        table.add(keyStatusLabel).colspan(heartImages.length).padRight(5);
+
         stage.addActor(table);
     }
 
     public void update(int livesRemaining) {
         for (int i = 0; i < heartImages.length; i++) {
             heartImages[i].setVisible(i < livesRemaining);
-        }    }
+        }
+    }
+
+    // Method to update key status
+    public void updateKeyStatus(boolean isKeyCollected) {
+        keyStatusLabel.setText("Lever: " + (isKeyCollected ? "Activated" : "Not activated"));
+    }
 
     public void draw() {
         stage.act(Math.min(stage.getWidth(), 1 / 30f));
