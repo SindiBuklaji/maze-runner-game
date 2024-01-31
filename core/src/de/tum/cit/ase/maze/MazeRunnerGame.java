@@ -7,14 +7,13 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.utils.Array;
+import de.tum.cit.ase.maze.GameScreen;
+import de.tum.cit.ase.maze.Screens.MenuScreen;
 import games.spooky.gdx.nativefilechooser.NativeFileChooser;
 
 import java.io.IOException;
-
-import static de.tum.cit.ase.maze.GameScreen.COOLDOWN_DURATION;
 
 /**
  * The MazeRunnerGame class represents the core of the Maze Runner game.
@@ -252,7 +251,7 @@ public class MazeRunnerGame extends Game implements ApplicationListener {
     }
 
     public boolean keyCollectionStatus() {
-       return keyCollected = true;
+        return keyCollected = true;
     }
 
     public void doorOpeningSound() {

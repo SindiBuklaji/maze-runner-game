@@ -1,7 +1,8 @@
-package de.tum.cit.ase.maze;
+package de.tum.cit.ase.maze.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -13,6 +14,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import de.tum.cit.ase.maze.GameScreen;
+import de.tum.cit.ase.maze.MazeRunnerGame;
+import de.tum.cit.ase.maze.GameScreen;
 import games.spooky.gdx.nativefilechooser.NativeFileChooserCallback;
 import games.spooky.gdx.nativefilechooser.NativeFileChooserConfiguration;
 
@@ -22,6 +26,8 @@ public class PauseScreen implements Screen {
     private MazeRunnerGame mazeRunnerGame;
     private GameScreen gameScreen;
     private final Stage stage;
+    private Sound buttonClick;
+
 
     private int selectedLevel; // Store the selected file handle
 
@@ -34,6 +40,8 @@ public class PauseScreen implements Screen {
 
         Viewport viewport = new ScreenViewport(camera); // Create a viewport with the camera
         stage = new Stage(viewport, game.getSpriteBatch()); // Create a stage for UI elements
+
+        buttonClick = Gdx.audio.newSound(Gdx.files.internal("buttton-click.mp3"));
 
         Table table = new Table(); // Create a table for layout
         table.setFillParent(true); // Make the table fill the stage
@@ -56,8 +64,10 @@ public class PauseScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 // Call the method to open the file chooser
+                buttonClick.play();
                 game.setPaused(false);
                 Gdx.graphics.setContinuousRendering(true);
+                buttonClick.play();
                 game.setScreen(level);
             }
         });
@@ -66,6 +76,7 @@ public class PauseScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 // Call the method to open the file chooser
+                buttonClick.play();
                 selectedLevel = openFileChooser();
                 try {
                     game.goToGame(selectedLevel); // Change to the game screen when button is pressed
@@ -79,6 +90,7 @@ public class PauseScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 // Call the method to open the file chooser
+                buttonClick.play();
                 Gdx.app.exit();
             }
         });
@@ -157,6 +169,7 @@ public class PauseScreen implements Screen {
     @Override
     public void dispose() {
         stage.dispose();
+        buttonClick.dispose();
         // Dispose of any resources when the screen is no longer needed
     }
 }

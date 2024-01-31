@@ -1,4 +1,4 @@
-package de.tum.cit.ase.maze;
+package de.tum.cit.ase.maze.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -22,7 +22,7 @@ public class HUDScreen {
         stage = new Stage(viewport);
 
         Table table = new Table();
-        table.top().padTop(70);
+        table.top().padTop(80);
         table.setFillParent(true);
 
         TextureRegion heartTexture = new TextureRegion(new Texture(Gdx.files.internal("objects.png")));
@@ -39,16 +39,16 @@ public class HUDScreen {
         table.row();
 
         // Create a label for key status
-        keyStatusLabel = new Label("Lever: Not activated", skin);
+        keyStatusLabel = new Label("Lever: Not activated (Space)", skin);
         keyStatusLabel.setFontScale(1); // Adjust the font size as needed
 
         // Add the key status label to the table
-        table.add(keyStatusLabel).colspan(heartImages.length).padRight(5);
+        table.add(keyStatusLabel).colspan(heartImages.length).padTop(1);
 
         stage.addActor(table);
     }
 
-    public void update(int livesRemaining) {
+    public void updateLives(int livesRemaining) {
         for (int i = 0; i < heartImages.length; i++) {
             heartImages[i].setVisible(i < livesRemaining);
         }

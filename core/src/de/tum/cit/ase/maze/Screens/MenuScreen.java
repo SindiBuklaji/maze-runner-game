@@ -1,33 +1,26 @@
-package de.tum.cit.ase.maze;
+package de.tum.cit.ase.maze.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import de.tum.cit.ase.maze.MazeRunnerGame;
 import games.spooky.gdx.nativefilechooser.NativeFileChooserCallback;
 import games.spooky.gdx.nativefilechooser.NativeFileChooserConfiguration;
 
-import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.plaf.FileChooserUI;
-
-import java.awt.*;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.io.File;
 import java.io.IOException;
-
-import static com.badlogic.gdx.Gdx.files;
-import static com.badlogic.gdx.scenes.scene2d.ui.Table.Debug.actor;
 
 /**
  * The MenuScreen class is responsible for displaying the main menu of the game.
@@ -37,6 +30,7 @@ public class MenuScreen implements Screen {
 
     private final Stage stage;
     private MazeRunnerGame mazeRunnerGame;
+    private Sound buttonClick;
 
     private int selectedLevel; // Store the selected file handle
 
@@ -53,8 +47,17 @@ public class MenuScreen implements Screen {
         Viewport viewport = new ScreenViewport(camera); // Create a viewport with the camera
         stage = new Stage(viewport, game.getSpriteBatch()); // Create a stage for UI elements
 
+        buttonClick = Gdx.audio.newSound(Gdx.files.internal("buttton-click.mp3"));
+
+        // Add a background image
+        Image backgroundImage = new Image(new Texture(Gdx.files.internal("menu-screen-background.jpg")));  // Replace with your image file
+        backgroundImage.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+        backgroundImage.setZIndex(0); // Set the Z-index for the background image
+        stage.addActor(backgroundImage);
+
         Table table = new Table(); // Create a table for layout
         table.setFillParent(true); // Make the table fill the stage
+        table.setZIndex(1); // Set the Z-index for the table
         stage.addActor(table); // Add the table to the stage
 
         // Add a label as a title
@@ -64,8 +67,14 @@ public class MenuScreen implements Screen {
         TextButton selectLevelButton = new TextButton("Load Map", game.getSkin());
         TextButton exitButton = new TextButton("Exit", game.getSkin());
 
+        // Set Z-indices for buttons higher than the background image
+        selectLevelButton.setZIndex(1);
+        exitButton.setZIndex(1);
+
         table.add(selectLevelButton).width(300).row();
         table.add(exitButton).width(300).row();
+
+
 
 
         selectLevelButton.addListener(new ChangeListener() {
@@ -73,6 +82,7 @@ public class MenuScreen implements Screen {
             public void changed(ChangeEvent event, Actor actor) {
                 game.resetGameState();
                 // Call the method to open the file chooser
+                buttonClick.play();
                 selectedLevel = openFileChooser();
                 try {
                     game.goToGame(selectedLevel); // Change to the game screen when button is pressed
@@ -86,6 +96,7 @@ public class MenuScreen implements Screen {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 // Call the method to open the file chooser
+                buttonClick.play();
                 Gdx.app.exit();
             }
         });
@@ -148,6 +159,7 @@ public class MenuScreen implements Screen {
     public void dispose() {
         // Dispose of the stage when screen is disposed
         stage.dispose();
+        buttonClick.dispose();
     }
 
     @Override

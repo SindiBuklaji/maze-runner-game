@@ -1,8 +1,9 @@
-package de.tum.cit.ase.maze;
+package de.tum.cit.ase.maze.Screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -10,10 +11,12 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import de.tum.cit.ase.maze.MazeRunnerGame;
 
 public class WinScreen implements Screen {
     private MazeRunnerGame mazeRunnerGame;
     private final Stage stage;
+    private Sound buttonClick;
 
     public WinScreen(MazeRunnerGame game) {
         this.mazeRunnerGame = game;
@@ -22,6 +25,8 @@ public class WinScreen implements Screen {
 
         Viewport viewport = new ScreenViewport(camera); // Create a viewport with the camera
         stage = new Stage(viewport, game.getSpriteBatch()); // Create a stage for UI elements
+
+        buttonClick = Gdx.audio.newSound(Gdx.files.internal("buttton-click.mp3"));
 
         Table table = new Table(); // Create a table for layout
         table.setFillParent(true); // Make the table fill the stage
@@ -46,6 +51,7 @@ public class WinScreen implements Screen {
 
         // Check for input to return to the main menu
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+            buttonClick.play();
             mazeRunnerGame.goToMenu();
         }
     }
@@ -71,6 +77,7 @@ public class WinScreen implements Screen {
 
     @Override
     public void dispose() {
+        buttonClick.dispose();
         // Dispose of any resources when the screen is no longer needed
     }
 }
