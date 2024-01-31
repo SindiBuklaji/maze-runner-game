@@ -81,7 +81,7 @@ public class Ghost {
     }
 
     private int getRandomMaxMoves() {
-        return 100 + new Random().nextInt(500); // Random value between 300 and 700
+        return 100 + new Random().nextInt(600); // Random value between 100 and 700
     }
 
     public void Move() {

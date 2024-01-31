@@ -183,7 +183,7 @@ public class GameScreen implements Screen {
 
             if (value == 4) {
                 TextureRegion ghostFrame = game.getGhostAnimation().getKeyFrame(sinusInput, true);
-                Ghost newGhost = new Ghost(game, mazeMap, this,10f, ghostFrame, (x * tileSize), (y * tileSize));
+                Ghost newGhost = new Ghost(game, mazeMap, this,5f, ghostFrame, (x * tileSize), (y * tileSize));
                 ghostList.add(newGhost);
             }
         }
