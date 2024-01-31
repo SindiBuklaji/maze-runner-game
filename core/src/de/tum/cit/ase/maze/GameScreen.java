@@ -301,8 +301,6 @@ public class GameScreen implements Screen {
             if (collidesWithCharacter(ghost.getCurrentX(), ghost.getCurrentY())) {
                 collisionOccurred = true;
                 decreaseLives(delta);
-                // ıt just detects ın spawn poınts
-                System.out.println("gohst touched");
             }
         }
         // Draw walls, doors, exits, fire, ghosts, and keys based on the map

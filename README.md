@@ -3,7 +3,7 @@
 The Maze Runner Game is a Java-based game developed using LibGDX. Your goal is to reach the lever and open it.
 Reach the exit door before you run out of lives. You will lose a life when you touch one of the traps. Good luck! 
 
-![img_1.png](img_1.png)
+![img2.png](img2.png)
 
 
 ## Game Overview
