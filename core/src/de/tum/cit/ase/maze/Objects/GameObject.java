@@ -2,7 +2,7 @@ package de.tum.cit.ase.maze.Objects;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-public class GameObject {
+public abstract class GameObject {
 
     // Position Attributes
     float x;
