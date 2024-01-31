@@ -20,6 +20,7 @@ public class Ghost {
     private Map<Direction,Vector2> possibleDirections;
     private MazeRunnerGame game;
     private Map<String, Integer> mazeMap;
+    private float speedFactor;
 
 
     public  Ghost(MazeRunnerGame game, Map<String, Integer> mazeMap, GameScreen gameScreen, float ghostSpeed, TextureRegion ghostFrame, float currentX, float currentY){
@@ -39,6 +40,7 @@ public class Ghost {
         List<Direction> keysList = new ArrayList<>(possibleDirections.keySet());
         Direction randomKey = getRandomElement(keysList);
         moveDir = possibleDirections.get(randomKey);
+
     }
     private  void ChangeMoveDirectionRandomly(Direction keyToExclude){
         List<Direction> keysList = new ArrayList<>(possibleDirections.keySet());
@@ -48,29 +50,29 @@ public class Ghost {
     }
 
     private boolean checkCollision(float x, float y) {
-        // Iterate through mazeMap to check for collision with walls
-        for (Map.Entry<String, Integer> entry : mazeMap.entrySet()) {
-            int value = entry.getValue();
-            if (value == 0 || value == 2 && !game.isKeyCollected()) { // Wall
-                String[] coordinates = entry.getKey().split(",");
-                float wallX = Integer.parseInt(coordinates[0]) * gameScreen.getTileSize();
-                float wallY = Integer.parseInt(coordinates[1]) * gameScreen.getTileSize();
-                float offset = 48f; // Adjust the offset as needed
+        int tileX = (int) (x / gameScreen.getTileSize());
+        int tileY = (int) (y / gameScreen.getTileSize());
 
-                if (currentX < wallX-10 + gameScreen.getTileSize() && currentX + offset > wallX-20 && currentY < wallY-10 + gameScreen.getTileSize() && currentY + offset > wallY) {
-                    // Collision detected with a wall
-                    return true;
+        // Check collision with walls
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+                int checkX = tileX + dx;
+                int checkY = tileY + dy;
+
+                if (mazeMap.containsKey(checkX + "," + checkY)) {
+                    int value = mazeMap.get(checkX + "," + checkY);
+                    if ((value == 0 || (value == 2 && !game.isKeyCollected())) && x >= checkX * gameScreen.getTileSize() &&
+                            x < (checkX + 1) * gameScreen.getTileSize() && y >= checkY * gameScreen.getTileSize() &&
+                            y < (checkY + 1) * gameScreen.getTileSize()) {
+                        // Collision detected with a wall
+                        return true;
+                    }
                 }
             }
         }
-        // Check for collision with map boundaries
-        if (x < 0 || gameScreen.getMaxX() > gameScreen.getMazeWidth() || y < 0 || gameScreen.getMaxY() > gameScreen.getMazeHeight()) {
-            // Collision detected with the map boundaries
-            return true;
-        }
 
-        // No collision detected
-        return false;
+        // Check collision with map boundaries
+        return x < 0 || x > gameScreen.getMazeWidth() || y < 0 || y > gameScreen.getMazeWidth();
     }
 
     public void Move() {
@@ -82,24 +84,24 @@ public class Ghost {
         float nextPosX = currentX + moveDir.x * Gdx.graphics.getDeltaTime() * ghostSpeed;
         float nextPosY = currentY + moveDir.y * Gdx.graphics.getDeltaTime() * ghostSpeed;
 
-        // Check if the ghost has moved the desired distance
-        if (Math.abs(nextPosX - currentX) >= 16 * distanceToMove || Math.abs(nextPosY - currentY) >= 16 * distanceToMove) {
-            // Change direction randomly after moving the desired distance
-            ChangeMoveDirectionRandomly(null);
-        }
+        boolean collided = false;
 
         // Rest of the collision and boundary checks remain unchanged
-        if (checkCollision(nextPosX, currentY) && moveDir.x == 1) { // right
+        if (moveDir.x == 1 && checkCollision(nextPosX, currentY)) { // right
             ChangeMoveDirectionRandomly(Direction.RIGHT);
-        } else if (checkCollision(nextPosX, currentY) && moveDir.x == -1) // left
+            collided = true;
+        } else if (moveDir.x == -1 && checkCollision(nextPosX, currentY)) // left
         {
             ChangeMoveDirectionRandomly(Direction.LEFT);
-        } else if (checkCollision(currentX, nextPosY) && moveDir.y == 1) // up
+            collided = true;
+        } else if (moveDir.y == 1 && checkCollision(currentX, nextPosY)) // up
         {
             ChangeMoveDirectionRandomly(Direction.UP);
-        } else if (checkCollision(currentX, nextPosY) && moveDir.y == -1) // down
+            collided = true;
+        } else if (moveDir.y == -1 && checkCollision(currentX, nextPosY)) // down
         {
             ChangeMoveDirectionRandomly(Direction.DOWN);
+            collided = true;
         }
 
         if (nextPosX >= gameScreen.mazeHeight) { // Right
@@ -115,9 +117,17 @@ public class Ghost {
             ChangeMoveDirectionRandomly(Direction.DOWN);
         }
 
+        //Check collision with map boundaries
+        if (!collided && (nextPosX >= gameScreen.getMazeWidth() || nextPosX <= 0 || nextPosY >= gameScreen.getMazeHeight() || nextPosY <= 0)) {
+            ChangeMoveDirectionRandomly(null); }
+
+        if(!collided) {
         currentX += moveDir.x * Gdx.graphics.getDeltaTime() * ghostSpeed;
         currentY += moveDir.y * Gdx.graphics.getDeltaTime() * ghostSpeed;
+        }
     }
+
+
 
 
     public TextureRegion getGhostFrame() {

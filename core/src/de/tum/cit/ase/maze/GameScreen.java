@@ -97,8 +97,9 @@ public class GameScreen implements Screen {
         fireAnimation = game.getFireAnimation();
 
         // Calculate maze dimensions based on window size
-        mazeWidth = Gdx.graphics.getWidth();
-        mazeHeight = Gdx.graphics.getHeight();
+      /*  mazeWidth = Gdx.graphics.getWidth();
+        mazeHeight = Gdx.graphics.getHeight(); */
+
 
         String levelFileName = "level-" + level + ".properties";
         FileHandle fileHandle = Gdx.files.internal("maps/" + levelFileName);
@@ -148,7 +149,11 @@ public class GameScreen implements Screen {
             if (y > maxY) {
                 maxY = y;
             }
+
         }
+
+        mazeWidth = maxX * tileSize;
+        mazeHeight = maxY * tileSize;
 
 
         // Create and configure the camera for the game view
@@ -178,7 +183,7 @@ public class GameScreen implements Screen {
 
             if (value == 4) {
                 TextureRegion ghostFrame = game.getGhostAnimation().getKeyFrame(sinusInput, true);
-                Ghost newGhost = new Ghost(game, mazeMap, this, 10f, ghostFrame, (x * tileSize), (y * tileSize));
+                Ghost newGhost = new Ghost(game, mazeMap, this,10f, ghostFrame, (x * tileSize), (y * tileSize));
                 ghostList.add(newGhost);
             }
         }
@@ -578,5 +583,6 @@ public class GameScreen implements Screen {
     public int getTileSize() {
         return tileSize;
     }
+
 
 }
