@@ -50,10 +50,10 @@ public class MenuScreen implements Screen {
         buttonClick = Gdx.audio.newSound(Gdx.files.internal("buttton-click.mp3"));
 
         // Add a background image
-        Image backgroundImage = new Image(new Texture(Gdx.files.internal("menu-screen-background.jpg")));  // Replace with your image file
+       /* Image backgroundImage = new Image(new Texture(Gdx.files.internal("menu-screen-background.jpg")));  // Replace with your image file
         backgroundImage.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         backgroundImage.setZIndex(0); // Set the Z-index for the background image
-        stage.addActor(backgroundImage);
+        stage.addActor(backgroundImage); */
 
         Table table = new Table(); // Create a table for layout
         table.setFillParent(true); // Make the table fill the stage

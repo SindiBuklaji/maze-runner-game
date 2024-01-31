@@ -39,7 +39,7 @@ public class HUDScreen {
         table.row();
 
         // Create a label for key status
-        keyStatusLabel = new Label("Lever: Not activated (Space)", skin);
+        keyStatusLabel = new Label("Lever: Not activated", skin);
         keyStatusLabel.setFontScale(1); // Adjust the font size as needed
 
         // Add the key status label to the table

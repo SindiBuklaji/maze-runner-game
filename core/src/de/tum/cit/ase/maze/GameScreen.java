@@ -322,8 +322,8 @@ public class GameScreen implements Screen {
                 // 2 == door
             } else if (value == 2) {
                 // Draw doors and check for key collision to win the game
-                Exit exit = new Exit(closedDoorRegion, openDoorRegion, x, y, tileSize, tileSize, game);
-                exit.render(game.getSpriteBatch());
+               /* Exit exit = new Exit(closedDoorRegion, openDoorRegion, x, y, tileSize, tileSize, game);
+                exit.render(game.getSpriteBatch()); */
                 float doorX = x * tileSize;
                 float doorY = y * tileSize;
                 game.getSpriteBatch().draw(closedDoorRegion, doorX, doorY, tileSize, tileSize);
