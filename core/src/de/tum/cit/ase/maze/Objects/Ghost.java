@@ -20,7 +20,9 @@ public class Ghost {
     private Map<Direction,Vector2> possibleDirections;
     private MazeRunnerGame game;
     private Map<String, Integer> mazeMap;
-    private float speedFactor;
+
+    private int movesInSameDirection;
+    private int maxMovesInSameDirection;
 
 
     public  Ghost(MazeRunnerGame game, Map<String, Integer> mazeMap, GameScreen gameScreen, float ghostSpeed, TextureRegion ghostFrame, float currentX, float currentY){
@@ -40,6 +42,9 @@ public class Ghost {
         List<Direction> keysList = new ArrayList<>(possibleDirections.keySet());
         Direction randomKey = getRandomElement(keysList);
         moveDir = possibleDirections.get(randomKey);
+
+        movesInSameDirection = 0;
+        maxMovesInSameDirection = getRandomMaxMoves();
 
     }
     private  void ChangeMoveDirectionRandomly(Direction keyToExclude){
@@ -72,7 +77,11 @@ public class Ghost {
         }
 
         // Check collision with map boundaries
-        return x < 0 || x > gameScreen.getMazeWidth() || y < 0 || y > gameScreen.getMazeWidth();
+        return x < 0 || x > gameScreen.getMazeWidth()-gameScreen.getTileSize() || y < 0 || y > gameScreen.getMazeWidth() - gameScreen.getTileSize();
+    }
+
+    private int getRandomMaxMoves() {
+        return 100 + new Random().nextInt(500); // Random value between 300 and 700
     }
 
     public void Move() {
@@ -117,16 +126,24 @@ public class Ghost {
             ChangeMoveDirectionRandomly(Direction.DOWN);
         }
 
-        //Check collision with map boundaries
+        // Check collision with map boundaries
         if (!collided && (nextPosX >= gameScreen.getMazeWidth() || nextPosX <= 0 || nextPosY >= gameScreen.getMazeHeight() || nextPosY <= 0)) {
-            ChangeMoveDirectionRandomly(null); }
+            ChangeMoveDirectionRandomly(null);
+        }
 
-        if(!collided) {
-        currentX += moveDir.x * Gdx.graphics.getDeltaTime() * ghostSpeed;
-        currentY += moveDir.y * Gdx.graphics.getDeltaTime() * ghostSpeed;
+        if (!collided) {
+            currentX += moveDir.x * Gdx.graphics.getDeltaTime() * ghostSpeed;
+            currentY += moveDir.y * Gdx.graphics.getDeltaTime() * ghostSpeed;
+            movesInSameDirection++;
+
+            // Check if it's time to change direction
+            if (movesInSameDirection >= maxMovesInSameDirection) {
+                ChangeMoveDirectionRandomly(null);
+                movesInSameDirection = 0;
+                maxMovesInSameDirection = getRandomMaxMoves();
+            }
         }
     }
-
 
 
 

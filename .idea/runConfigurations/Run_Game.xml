@@ -2,7 +2,7 @@
   <configuration default="false" name="Run Game" type="Application" factoryName="Application">
     <option name="ALTERNATIVE_JRE_PATH" value="/Library/Java/JavaVirtualMachines/jdk-17.0.1.jdk/Contents/Home" />
     <option name="MAIN_CLASS_NAME" value="de.tum.cit.ase.maze.DesktopLauncher" />
-    <module name="itp2324itp2324projectwork-mon3mu1sindi-TEST4.desktop.main" />
+    <module name="itp2324itp2324projectwork-mon3mu1sindi-TEST5.desktop.main" />
     <option name="VM_PARAMETERS" value="-XstartOnFirstThread" />
     <extension name="coverage">
       <pattern>
